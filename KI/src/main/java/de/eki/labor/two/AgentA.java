@@ -50,13 +50,19 @@ public class AgentA implements Agent {
         List<Placement> possiblePlacements = new ArrayList<>();
         Game tempGame = game.copy();
         boolean placed = false;
+
+        for (Building building : game.getPlacableBuildings()){
+            if(building.getNumberInGame() == 9){
+               //do amazing stuff 
+            }
+        }
+
         List<Building> buildings = new ArrayList<Building>();
         for (int i = 5; i > 0; i--) {
             for (Building building : game.getPlacableBuildings()) {
                 if (building.score() == i) {
                     buildings.add(building);
                 }
-
             }
         }
 
