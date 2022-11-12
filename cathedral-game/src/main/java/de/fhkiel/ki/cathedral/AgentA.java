@@ -196,7 +196,8 @@ public class AgentA implements Agent {
 
     private List<Placement> getConnectingPlacement(Game tempGame, List<Building> buildings){
         List<Placement> connectingPlacements = new ArrayList<Placement>();
-        var directions = Direction.values();
+        Direction[] directions = Direction.values();
+        List<List<Position>>fourDirectionPositions = new ArrayList<List<Position>>();
         for(Building building : buildings){
             for(int i = 0; i < 4; i++){
                 Position topleft = tryTopLeftCorner(tempGame, directions[i], building);
@@ -212,34 +213,34 @@ public class AgentA implements Agent {
                     positions.add(new Position(topleft.x(), y));
                     positions.add(new Position(bottomright.x(), y));
                 }
+                //es fehlt die gespeicherte direction
+                fourDirectionPositions.add(positions);
 
             }
         }
+    
+        //speicher die relativen Punkte des Gegners: moegliche Zuege - jetzige punkte
+        Color enemyColor = getEnemyColor(tempGame.getCurrentPlayer());
+        var scores = tempGame.score();
+        Integer enemyScore = scores.get(enemyColor);
+        int relativeEnemyScore = getEnemyTurns(tempGame) - enemyScore;
 
 
-        List<Position> innen = new ArrayList<Position>();
-        for (int y = 2; y < 7; ++y) {
-            for (int x = 2; x < 7; ++x) {
-                innen.add(new Position(x, y));
-            }
-        }
+        //differenz = relativeEnemyScore - newEnemyScore sollte moeglichst gross sein
+        //für jede Position in fourDirectionPositions wird der move mit der direction ausgeführt
+        // dann wird erstmal geschaut, ob sich die gegnerischen punkte diesen zug erhöhen lassen
+            //dann wird der zug gewählt der die größte differenz hat
+            // kann man nichts vom gegner entfernen
+                //wird erstmal ein Zug gesetzt der an einem anderen Stein angrenzt
+                // und ein stein der an der Wand angrenzt als nächstes
+                // diese Kombination wird wieder als Differenz ausgezählt
+                //die höchste Differenz wird als Zug wirklich gesetzt
 
-        List<Position> aussen = new ArrayList<Position>();
-        for (int y = 0; y < 10; ++y) {
-            for (int x = 0; x < 10; ++x) {
-                Position possiblePosition = new Position(x,y);
-                if(!innen.contains(possiblePosition))
-                {
-                    aussen.add(possiblePosition);
-                }
-            }
-        }
 
-        //berührt das placement eine wand? 
-        // dafür ->    
-            //corner für eine Drehrichtung
-            //wir versuchen in jede ecke den stein zu legen ->
-                // wir bekommen die "Ränder" und alle placements für diesen stein
+        //Es kann mit dem Füllen begonnen werden, wenn es keinen Zug gibt, der dem gegner Zugmöglichkeiten klaut.
+
+
+
 
 
         
@@ -249,6 +250,14 @@ public class AgentA implements Agent {
 
 
         return connectingPlacements;
+    }
+
+    private Color getEnemyColor(Color currentPlayerColor){
+        if(currentPlayerColor == Color.White)
+        {
+            return Color.Black;
+        }
+        return  Color.White;
     }
 
     private int getEnemyTurns(Game game){
