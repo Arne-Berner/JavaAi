@@ -1,5 +1,7 @@
 package de.fhkiel.ki.cathedral;
 
+import static org.mockito.Mockito.never;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ public class AgentA implements Agent {
     public static void main(String[] args) {
         CathedralGUI.start(Settings.Builder()
                 .token("MTAzNDA4MjI4NTAyMjEwMTU2NA.G4LMpA.UUuWQC_AYk5UqhuJihNg4nYSXcHOu1JYfBU5mU")
-                .build(), new AgentA());
+                .build(), new AgentA(), new AgentB());
     }
 
     private PrintStream console;

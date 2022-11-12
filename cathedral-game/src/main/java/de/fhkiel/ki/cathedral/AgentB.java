@@ -29,7 +29,7 @@ public class AgentB implements Agent {
 
     @Override
     public String name() {
-        return "Improved Agent";
+        return "Test Agent";
     }
 
     @Override
