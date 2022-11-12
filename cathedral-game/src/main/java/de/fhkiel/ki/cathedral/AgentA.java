@@ -1,5 +1,7 @@
 package de.fhkiel.ki.cathedral;
 
+import static org.mockito.Mockito.never;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ public class AgentA implements Agent {
     public static void main(String[] args) {
         CathedralGUI.start(Settings.Builder()
                 .token("MTAzNDA4MjI4NTAyMjEwMTU2NA.G4LMpA.UUuWQC_AYk5UqhuJihNg4nYSXcHOu1JYfBU5mU")
-                .build(), new AgentA());
+                .build(), new AgentA(), new AgentB());
     }
 
     private PrintStream console;
@@ -54,8 +56,6 @@ public class AgentA implements Agent {
         boolean placed = false;
         firstTurn(tempGame, possiblePlacements);
         List<Building> buildings = getSortedBuildings(game);
-
-
 
         for (Building building : buildings) {
             boolean gridloop = true;
@@ -153,9 +153,45 @@ public class AgentA implements Agent {
         }
     }
 
+    /**
+     * gets the evaluated Score for the last Turn of current Player
+     * 
+     * @return Score as int
+     */
+    private int getLastTurnScore(Game game) {
+        Game tempGame = game.copy();
+
+        Color currentPlayer = tempGame.getCurrentPlayer();
+        Color enemyPlayer = tempGame.getEnemyPlayer();
+        // nach dem letzten zug
+        tempGame.undoLastTurn();
+        int enemyTurns = getTurnCount(tempGame, enemyPlayer);
+        int ownScore = tempGame.getPlayerScore(currentPlayer);
+        int enemyScore = tempGame.getPlayerScore(enemyPlayer);
+        int enemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
+
+        // vor dem letzten zug
+        tempGame.undoLastTurn();
+        int oldEnemyTurns = getTurnCount(tempGame, enemyPlayer);
+        int oldOwnScore = tempGame.getPlayerScore(currentPlayer);
+        int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
+        int oldEnemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
+
+        // muss alles moeglichst hoch sein
+        float ownScoreDiff = (oldOwnScore - ownScore) * 1.5f;
+        int enemyScoreDiff = (enemyScore - oldEnemyScore) * 2;
+        int enemyTurnDiff = oldEnemyTurns - enemyTurns;
+        // cancels enemyturndiff?
+        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff/2);
+
+        int turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
+
+        return turnScore;
+    }
+
     @Override
     public String evaluateLastTurn(Game game) {
-        return Integer.toString(game.getCurrentPlayerScore());
+        return Integer.toString(getLastTurnScore(game));
     }
 
     @Override
@@ -163,8 +199,7 @@ public class AgentA implements Agent {
 
     }
 
-
-    private Position tryTopLeftCorner(Game tempGame, Direction direction, Building building){
+    private Position tryTopLeftCorner(Game tempGame, Direction direction, Building building) {
         for (int y = 0; y < 2; y++) {
             for (int x = 0; x < 2; x++) {
                 var position = new Position(x, y);
@@ -177,7 +212,7 @@ public class AgentA implements Agent {
         return null;
     }
 
-    private Position tryBottomRightCorner(Game tempGame, Direction direction, Building building){
+    private Position tryBottomRightCorner(Game tempGame, Direction direction, Building building) {
         for (int y = 9; y > 7; y--) {
             for (int x = 9; x > 7; x--) {
                 var position = new Position(x, y);
@@ -190,20 +225,20 @@ public class AgentA implements Agent {
         return null;
     }
 
-    private List<Placement> getConnectingPlacement(Game tempGame, List<Building> buildings){
+    private List<Placement> getConnectingPlacement(Game tempGame, List<Building> buildings) {
         List<Placement> connectingPlacements = new ArrayList<Placement>();
         Direction[] directions = Direction.values();
-        for(Building building : buildings){
-            for(int i = 0; i < 4; i++){
+        for (Building building : buildings) {
+            for (int i = 0; i < 4; i++) {
                 Position topleft = tryTopLeftCorner(tempGame, directions[i], building);
                 Position bottomright = tryBottomRightCorner(tempGame, directions[i], building);
 
-                for(int x = topleft.x(); x <= bottomright.x(); x++){
+                for (int x = topleft.x(); x <= bottomright.x(); x++) {
                     connectingPlacements.add(new Placement(new Position(x, topleft.y()), directions[i], building));
                     connectingPlacements.add(new Placement(new Position(x, bottomright.y()), directions[i], building));
                 }
 
-                for(int y = topleft.y() + 1; y < bottomright.y(); y++){
+                for (int y = topleft.y() + 1; y < bottomright.y(); y++) {
                     connectingPlacements.add(new Placement(new Position(topleft.x(), y), directions[i], building));
                     connectingPlacements.add(new Placement(new Position(bottomright.x(), y), directions[i], building));
                 }
@@ -211,42 +246,41 @@ public class AgentA implements Agent {
             }
         }
 
-    
-        //speicher die relativen Punkte des Gegners: moegliche Zuege - jetzige punkte
+        // speicher die relativen Punkte des Gegners: moegliche Zuege - jetzige punkte
 
-
-        //(vielleicht noch unsere eigenen relativen punkte mit einberechnen,
-        // dadurch werden automatisch groessere Steine genommen, wenn moeglich [vielleicht die eigenen
+        // (vielleicht noch unsere eigenen relativen punkte mit einberechnen,
+        // dadurch werden automatisch groessere Steine genommen, wenn moeglich
+        // [vielleicht die eigenen
         // punkte die verschwinden sogar mal ])
-        //differenz = relativeEnemyScore - newEnemyScore sollte moeglichst gross sein
-        //für jede Position in fourDirectionPositions wird der move mit der direction ausgeführt
-        // dann wird erstmal geschaut, ob sich die gegnerischen punkte diesen zug erhöhen lassen
-            //dann wird der zug gewählt der die größte differenz hat
-            // kann man nichts vom gegner entfernen
-                //wird erstmal ein Zug gesetzt der an einem anderen Stein angrenzt
-                // und ein stein der an der Wand angrenzt als nächstes
-                // diese Kombination wird wieder als Differenz ausgezählt
-                //die höchste Differenz wird als Zug wirklich gesetzt
+        // differenz = relativeEnemyScore - newEnemyScore sollte moeglichst gross sein
+        // für jede Position in fourDirectionPositions wird der move mit der direction
+        // ausgeführt
+        // dann wird erstmal geschaut, ob sich die gegnerischen punkte diesen zug
+        // erhöhen lassen
+        // dann wird der zug gewählt der die größte differenz hat
+        // kann man nichts vom gegner entfernen
+        // wird erstmal ein Zug gesetzt der an einem anderen Stein angrenzt
+        // und ein stein der an der Wand angrenzt als nächstes
+        // diese Kombination wird wieder als Differenz ausgezählt
+        // die höchste Differenz wird als Zug wirklich gesetzt
 
-
-        //Es kann mit dem Füllen begonnen werden, wenn es keinen Zug gibt, der dem gegner Zugmöglichkeiten klaut.
+        // Es kann mit dem Füllen begonnen werden, wenn es keinen Zug gibt, der dem
+        // gegner Zugmöglichkeiten klaut.
 
         return connectingPlacements;
     }
 
-    private int placeAbleBuildingCount(Game game, Color playerColor){
+    private int placeAbleBuildingCount(Game game, Color playerColor) {
         var tempGame = game.copy();
-
-        
 
         return 0;
     }
 
-    private void firstTurn(Game tempGame, List<Placement> possiblePlacements){
+    private void firstTurn(Game tempGame, List<Placement> possiblePlacements) {
         // Erster zug!
         for (Building neuner : tempGame.getPlacableBuildings()) {
             if (neuner.getId() == 9) {
-                Position cathedralPosition = game.getBoard().getPlacedBuildings().get(0).position();
+                Position cathedralPosition = tempGame.getBoard().getPlacedBuildings().get(0).position();
                 if (cathedralPosition.x() < 5) {
                     // nur rechte positionen setzen
                     var possiblePosition = new Position(6, 4);
@@ -305,11 +339,10 @@ public class AgentA implements Agent {
                 }
             }
         }
-        
+
     }
 
-    private List<Building> getSortedBuildings(Game game)
-    {
+    private List<Building> getSortedBuildings(Game game) {
         List<Building> buildings = new ArrayList<Building>();
         for (int i = 5; i > 0; i--) {
             for (Building building : game.getPlacableBuildings()) {
@@ -321,4 +354,43 @@ public class AgentA implements Agent {
 
         return buildings;
     }
+
+    /**
+     * Gets the number of possible turns
+     * 
+     * @return number of enemy turns as int
+     */
+    public int getTurnCount(Game tempGame, Color player) {
+        tempGame.ignoreRules(true);
+        int enemyPlacement = 0;
+        Building building = null;
+        if (player == Color.White) {
+            building = Building.White_Tavern;
+        } else {
+            building = Building.Black_Tavern;
+        }
+
+        for (int y = 0; y < 10; ++y) {
+            for (int x = 0; x < 10; ++x) {
+                Placement possiblePlacement = new Placement(x, y, Direction._0, building);
+                if (tempGame.takeTurn(possiblePlacement, true)) {
+                    enemyPlacement++;
+                    tempGame.undoLastTurn();
+                }
+            }
+        }
+        tempGame.ignoreRules(false);
+
+        return enemyPlacement;
+    }
+
+  private int getPlaceAbleBuildingScore(Game game, Color player){
+    List<Building> buildings = game.getPlacableBuildings(player);
+    int buildingScore = 0;
+    for(Building building : buildings){
+        buildingScore += building.score();
+    }
+
+    return buildingScore;
+  }
 }
