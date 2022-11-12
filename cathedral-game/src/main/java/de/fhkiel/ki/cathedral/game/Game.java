@@ -196,14 +196,20 @@ public class Game {
   }
 
   /**
-   * gets the opposite of the currents player Color
+   * Gets the current player {@link Color}.
+   * Can be the {@link Color#Blue}, {@link Color#Black} or {@link Color#White}
+   *
+   * @return the current player {@link Color}
    */
-  public Color getEnemyColor(Color currentPlayerColor){
-      if(currentPlayerColor == Color.White)
-      {
-          return Color.Black;
+  public Color getEnemyPlayer() {
+    if (turns.size() == 1) {
+      return Color.Blue;
+    } else {
+      if (turns.size() % 2 == 0) {
+        return Color.White;
       }
-      return  Color.White;
+      return Color.Black;
+    }
   }
 
   /**
@@ -287,18 +293,21 @@ public class Game {
     int enemyTurns = tempGame.getEnemyTurnCount();
     int ownScore = tempGame.getCurrentPlayerScore();
     int enemyScore = tempGame.getEnemyPlayerScore();
+    int enemyBuildingScore = tempGame.getPlaceAbleBuildingScore(getEnemyPlayer());
 
     //vor dem letzten zug
     tempGame.undoLastTurn();
     int oldEnemyTurns = tempGame.getEnemyTurnCount();
     int oldOwnScore = tempGame.getCurrentPlayerScore();
     int oldEnemyScore = tempGame.getEnemyPlayerScore();
+    int oldEnemyBuildingScore = tempGame.getPlaceAbleBuildingScore(getEnemyPlayer());
 
     //muss alles moeglichst hoch sein
     float ownScoreDiff = (oldOwnScore - ownScore) * 1.5f;
     int enemyScoreDiff = (enemyScore - oldEnemyScore) * 2;
     int enemyTurnDiff = oldEnemyTurns - enemyTurns;
-    int turnScore = (int)ownScoreDiff + enemyScoreDiff + enemyTurnDiff;
+    int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore;
+    int turnScore = (int)ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScore;
 
     return turnScore;
   }
@@ -319,7 +328,7 @@ public class Game {
    */
   public int getEnemyPlayerScore()
   {
-      Color enemyColor = getEnemyColor(this.getCurrentPlayer());
+      Color enemyColor = getEnemyPlayer();
       var scores = this.score();
       Integer enemyScore = scores.get(enemyColor);
 
