@@ -180,7 +180,7 @@ public class AgentA implements Agent {
         int enemyScoreDiff = (enemyScore - oldEnemyScore) * 2;
         int enemyTurnDiff = oldEnemyTurns - enemyTurns;
         // cancels enemyturndiff?
-        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore;
+        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff/2);
 
         int turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
 
