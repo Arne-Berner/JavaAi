@@ -284,13 +284,13 @@ public class Game {
 
     //nach dem letzten zug
     tempGame.undoLastTurn();
-    int enemyTurns = tempGame.getEnemyTurns();
+    int enemyTurns = tempGame.getEnemyTurnCount();
     int ownScore = tempGame.getCurrentPlayerScore();
     int enemyScore = tempGame.getEnemyPlayerScore();
 
     //vor dem letzten zug
     tempGame.undoLastTurn();
-    int oldEnemyTurns = tempGame.getEnemyTurns();
+    int oldEnemyTurns = tempGame.getEnemyTurnCount();
     int oldOwnScore = tempGame.getCurrentPlayerScore();
     int oldEnemyScore = tempGame.getEnemyPlayerScore();
 
