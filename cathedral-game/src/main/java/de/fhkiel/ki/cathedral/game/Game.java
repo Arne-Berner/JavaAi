@@ -149,6 +149,35 @@ public class Game {
     turns.add(new Turn(turns.size(), lastTurn().getBoard().copy()));
   }
 
+
+  /**
+   * Gets the number of possible turns
+   * 
+   * @return number of enemy turns as int
+   */
+  public int getEnemyTurnCount(){
+      var tempGame = this.copy();
+      tempGame.ignoreRules(true);
+      Color currentColor = tempGame.getCurrentPlayer();
+      int enemyPlacement = 0;
+
+      for (Building building : tempGame.getPlacableBuildings()) {
+          if (building.getColor() != currentColor){
+              for (int y = 0; y < 10; ++y) {
+                  for (int x = 0; x < 10; ++x) {
+                      Placement possiblePlacement = new Placement(x, y, Direction._0, building);
+                      if (tempGame.takeTurn(possiblePlacement, true)) {
+                          enemyPlacement++;
+                          tempGame.undoLastTurn();
+                      }
+                  }
+              }
+          }
+      }
+
+      return enemyPlacement;
+  }
+
   /**
    * Gets the current player {@link Color}.
    * Can be the {@link Color#Blue}, {@link Color#Black} or {@link Color#White}
@@ -163,6 +192,23 @@ public class Game {
         return Color.Black;
       }
       return Color.White;
+    }
+  }
+
+  /**
+   * Gets the current player {@link Color}.
+   * Can be the {@link Color#Blue}, {@link Color#Black} or {@link Color#White}
+   *
+   * @return the current player {@link Color}
+   */
+  public Color getEnemyPlayer() {
+    if (turns.size() == 1) {
+      return Color.Blue;
+    } else {
+      if (turns.size() % 2 == 0) {
+        return Color.White;
+      }
+      return Color.Black;
     }
   }
 
@@ -187,6 +233,16 @@ public class Game {
    */
   public List<Building> getPlacableBuildings(Color player) {
     return lastTurn().getBoard().getPlacableBuildings(player);
+  }
+
+  public int getPlaceAbleBuildingScore(Color player){
+    List<Building> buildings = getPlacableBuildings(player);
+    int buildingScore = 0;
+    for(Building building : buildings){
+        buildingScore += building.getId();
+    }
+
+    return buildingScore;
   }
 
   /**
@@ -220,6 +276,65 @@ public class Game {
     return lastTurn().score();
   }
 
+
+
+
+  /**
+   * gets the evaluated Score for the last Turn of current Player
+   * 
+   * @return Score as int
+   */
+  public int getLastTurnScore()
+  {
+    Game tempGame = this.copy();
+
+    //nach dem letzten zug
+    tempGame.undoLastTurn();
+    int enemyTurns = tempGame.getEnemyTurnCount();
+    int ownScore = tempGame.getCurrentPlayerScore();
+    int enemyScore = tempGame.getEnemyPlayerScore();
+    int enemyBuildingScore = tempGame.getPlaceAbleBuildingScore(getEnemyPlayer());
+
+    //vor dem letzten zug
+    tempGame.undoLastTurn();
+    int oldEnemyTurns = tempGame.getEnemyTurnCount();
+    int oldOwnScore = tempGame.getCurrentPlayerScore();
+    int oldEnemyScore = tempGame.getEnemyPlayerScore();
+    int oldEnemyBuildingScore = tempGame.getPlaceAbleBuildingScore(getEnemyPlayer());
+
+    //muss alles moeglichst hoch sein
+    float ownScoreDiff = (oldOwnScore - ownScore) * 1.5f;
+    int enemyScoreDiff = (enemyScore - oldEnemyScore) * 2;
+    int enemyTurnDiff = oldEnemyTurns - enemyTurns;
+    int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore;
+    int turnScore = (int)ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScore;
+
+    return turnScore;
+  }
+
+  /**
+   * @return gets your own score as int
+   */
+  public int getCurrentPlayerScore()
+  {
+      var scores = this.score();
+      int currentPlayerScore = scores.get(this.getCurrentPlayer());
+
+      return currentPlayerScore;
+  }
+
+  /**
+   * @return gets enemy score as int
+   */
+  public int getEnemyPlayerScore()
+  {
+      Color enemyColor = getEnemyPlayer();
+      var scores = this.score();
+      Integer enemyScore = scores.get(enemyColor);
+
+      return enemyScore;
+
+  }
 
   /**
    * Is the game finished.
