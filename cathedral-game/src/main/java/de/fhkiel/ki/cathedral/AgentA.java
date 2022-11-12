@@ -178,20 +178,131 @@ public class AgentA implements Agent {
         int oldEnemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
 
         // muss alles moeglichst hoch sein
-        float ownScoreDiff = (oldOwnScore - ownScore) * 1.5f;
-        int enemyScoreDiff = (enemyScore - oldEnemyScore) * 2;
+        // wird doppelt gezaehlt durch die flaeche die eingenommen wird
+        float ownScoreDiff = (oldOwnScore - ownScore);
+        int enemyScoreDiff = (enemyScore - oldEnemyScore);
         int enemyTurnDiff = oldEnemyTurns - enemyTurns;
-        // cancels enemyturndiff?
-        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff/2);
+        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
 
         int turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
 
         return turnScore;
     }
 
+    /**
+     * Gets a reason, why your turn was good or bad
+     * 
+     * @return Score as int
+     */
+    private String getLastTurnScoreAsString(Game game) {
+        Game tempGame = game.copy();
+
+        String reason = "\n";
+
+        Color currentPlayer = tempGame.getCurrentPlayer();
+        Color enemyPlayer = tempGame.getEnemyPlayer();
+        // nach dem letzten zug
+        tempGame.undoLastTurn();
+        int ownScore = tempGame.getPlayerScore(currentPlayer);
+        int enemyScore = tempGame.getPlayerScore(enemyPlayer);
+        int enemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
+        int enemyTurns = getTurnCount(tempGame, enemyPlayer);
+
+        // vor dem letzten zug
+        tempGame.undoLastTurn();
+        int oldOwnScore = tempGame.getPlayerScore(currentPlayer);
+        int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
+        int oldEnemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
+        int oldEnemyTurns = getTurnCount(tempGame, enemyPlayer);
+
+        // muss alles moeglichst hoch sein
+        // wird doppelt gezaehlt durch die flaeche die eingenommen wird
+        int ownScoreDiff = (oldOwnScore - ownScore);
+        int enemyScoreDiff = (enemyScore - oldEnemyScore);
+        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
+        int enemyTurnDiff = oldEnemyTurns - enemyTurns;
+
+        int turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
+
+        switch (ownScoreDiff) {
+            case 1:
+            case 2:
+            case 3:
+                reason += "Du hast einen kleinen Stein gesetzt. Das gibt: " + ownScoreDiff + " Punkte\n";
+                break;
+            case 4:
+            case 5:
+                reason += "Du hast einen grossen Stein gesetzt. Das gibt: " + ownScoreDiff + " Punkte\n";
+                break;
+            default:
+                reason += "Du hast keinen Stein gesetzt :(\n";
+                break;
+        }
+
+        switch (enemyScoreDiff) {
+            case 1:
+            case 2:
+            case 3:
+                reason += "Du hast deinem Gegner einen kleinen Stein geklaut! Das gibt: " + enemyScoreDiff
+                        + " Punkte\n";
+                break;
+            case 4:
+            case 5:
+                reason += "Du hast deinem Gegner einen grossen Stein geklaut! Das gibt: " + enemyScoreDiff
+                        + " Punkte\n";
+                break;
+            default:
+                reason += "Du hast keinen Stein geklaut :(\n";
+                break;
+        }
+
+        if (enemyBuildingScoreDiff == 0) {
+            reason += "Dein Gegner kann gleich viele Gebäude wie vorher setzen.\n";
+        } else if (enemyBuildingScore < 3) {
+            reason += "Dein Gegner kann weniger Gebäude setzen. Das gibt: " + enemyBuildingScoreDiff + " Punkte\n";
+        } else if (enemyBuildingScore < 6) {
+            reason += "Dein Gegner kann viel weniger Gebäude setzen. Das gibt: " + enemyBuildingScoreDiff + " Punkte\n";
+        } else if (enemyBuildingScore > 6) {
+            reason += "Dein Gegner kann sehr viel weniger Gebäude setzen!! Das gibt: " + enemyBuildingScoreDiff
+                    + " Punkte\n";
+        }
+
+        if (enemyTurnDiff == 0) {
+            reason += "Du hast keinen Zug gemacht.\n";
+        } else if (enemyTurnDiff < 3) {
+            reason += "Du hast wenig Fläche besetzt. Das gibt: " + enemyTurnDiff + " Punkte\n";
+        } else if (enemyTurnDiff < 10) {
+            reason += "Du hast mittelviel Fläche besetzt. Das gibt: " + enemyTurnDiff + " Punkte\n";
+        } else if (enemyTurnDiff > 10) {
+            reason += "Du hast viel Fläche besetzt!! Das gibt: " + enemyTurnDiff + " Punkte\n";
+        }
+
+        if (turnScore == 0) {
+            reason += "Das ergibt: " + turnScore + "Punkte\nSchade.";
+        } else if (turnScore < 5) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nDas nächste mal wirds besser.";
+        } else if (turnScore < 10) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nBesser als gar nichts.";
+        } else if (turnScore < 15) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nNicht schlecht, aber auch nicht gut.";
+        } else if (turnScore < 20) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nIch bin beeindruckt. Aber nur leicht.";
+        } else if (turnScore < 25) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nNicht schlecht, Herr Specht.";
+        } else if (turnScore < 30) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nMacher.";
+        } else if (turnScore < 35) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nIch bin schwer beeindruckt.";
+        } else if (turnScore > 35) {
+            reason += "Das ergibt insgesamt " + turnScore + " Punkte\nWow :)";
+        }
+
+        return reason;
+    }
+
     @Override
     public String evaluateLastTurn(Game game) {
-        return Integer.toString(getLastTurnScore(game));
+        return getLastTurnScoreAsString(game);
     }
 
     @Override
@@ -384,13 +495,17 @@ public class AgentA implements Agent {
         return enemyPlacement;
     }
 
-  private int getPlaceAbleBuildingScore(Game game, Color player){
-    List<Building> buildings = game.getPlacableBuildings(player);
-    int buildingScore = 0;
-    for(Building building : buildings){
-        buildingScore += building.score();
-    }
+    private int getPlaceAbleBuildingScore(Game game, Color player) {
+        List<Building> buildings = game.getPlacableBuildings(player);
+        int buildingScore = 0;
 
-    return buildingScore;
-  }
+        for (Building building : buildings) {
+            var possiblePlacements = building.getPossiblePlacements(game);
+            if (possiblePlacements.size() != 0) {
+                buildingScore += building.score();
+            }
+        }
+
+        return buildingScore;
+    }
 }

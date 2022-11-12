@@ -56,16 +56,9 @@ public class AgentB implements Agent {
 
         if (possiblePlacements.isEmpty()) {
             for (Building building : game.getPlacableBuildings()) {
-                for (int y = 0; y < 10; ++y) {
-                    for (int x = 0; x < 10; ++x) {
-                        for (Direction direction : building.getTurnable().getPossibleDirections()) {
-                            Placement possiblePlacement = new Placement(x, y, direction, building);
-                            if (tempGame.takeTurn(possiblePlacement, true)) {
-                                possiblePlacements.add(possiblePlacement);
-                                tempGame.undoLastTurn();
-                            }
-                        }
-                    }
+                var buildPlacements = building.getAllPossiblePlacements();
+                for(Placement plac : buildPlacements){
+                    possiblePlacements.add(plac);
                 }
             }
         }
