@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import javax.swing.JComponent;
 
+import org.junit.jupiter.api.extension.Extensions;
+
 import com.fasterxml.jackson.datatype.jdk8.PackageVersion;
 
 import de.fhkiel.ki.cathedral.ai.Agent;
@@ -153,13 +155,7 @@ public class AgentA implements Agent {
 
     @Override
     public String evaluateLastTurn(Game game) {
-        //gucken, ob ein stein, die gegnerischen Punkte erhöhen kann
-            // dazu muss ein Stein am Rand gesetzt werden, der die gegnerischen Punkte erhoeht
-                // die Randpositionen werden ermittelt
-                    // welche Randpositionen erhöhen die Punkte des Gegners
-                        // welche dieser Positionen erhöht am meisten Punkte des Gegners?
-                            // welche dieser Positionen verringert die meisten Züge des Gegners
-        return Integer.toString(getEnemyTurns(game));
+        return Integer.toString(game.getCurrentPlayerScore());
     }
 
     @Override
@@ -197,35 +193,31 @@ public class AgentA implements Agent {
     private List<Placement> getConnectingPlacement(Game tempGame, List<Building> buildings){
         List<Placement> connectingPlacements = new ArrayList<Placement>();
         Direction[] directions = Direction.values();
-        List<List<Position>>fourDirectionPositions = new ArrayList<List<Position>>();
         for(Building building : buildings){
             for(int i = 0; i < 4; i++){
                 Position topleft = tryTopLeftCorner(tempGame, directions[i], building);
                 Position bottomright = tryBottomRightCorner(tempGame, directions[i], building);
 
-                List<Position> positions = new ArrayList<Position>();
                 for(int x = topleft.x(); x <= bottomright.x(); x++){
-                    positions.add(new Position(x, topleft.y()));
-                    positions.add(new Position(x, bottomright.y()));
+                    connectingPlacements.add(new Placement(new Position(x, topleft.y()), directions[i], building));
+                    connectingPlacements.add(new Placement(new Position(x, bottomright.y()), directions[i], building));
                 }
 
                 for(int y = topleft.y() + 1; y < bottomright.y(); y++){
-                    positions.add(new Position(topleft.x(), y));
-                    positions.add(new Position(bottomright.x(), y));
+                    connectingPlacements.add(new Placement(new Position(topleft.x(), y), directions[i], building));
+                    connectingPlacements.add(new Placement(new Position(bottomright.x(), y), directions[i], building));
                 }
-                //es fehlt die gespeicherte direction
-                fourDirectionPositions.add(positions);
 
             }
         }
+
     
         //speicher die relativen Punkte des Gegners: moegliche Zuege - jetzige punkte
-        Color enemyColor = getEnemyColor(tempGame.getCurrentPlayer());
-        var scores = tempGame.score();
-        Integer enemyScore = scores.get(enemyColor);
-        int relativeEnemyScore = getEnemyTurns(tempGame) - enemyScore;
 
 
+        //(vielleicht noch unsere eigenen relativen punkte mit einberechnen,
+        // dadurch werden automatisch groessere Steine genommen, wenn moeglich [vielleicht die eigenen
+        // punkte die verschwinden sogar mal ])
         //differenz = relativeEnemyScore - newEnemyScore sollte moeglichst gross sein
         //für jede Position in fourDirectionPositions wird der move mit der direction ausgeführt
         // dann wird erstmal geschaut, ob sich die gegnerischen punkte diesen zug erhöhen lassen
@@ -239,48 +231,15 @@ public class AgentA implements Agent {
 
         //Es kann mit dem Füllen begonnen werden, wenn es keinen Zug gibt, der dem gegner Zugmöglichkeiten klaut.
 
-
-
-
-
-        
-
-        
-
-
-
         return connectingPlacements;
     }
 
-    private Color getEnemyColor(Color currentPlayerColor){
-        if(currentPlayerColor == Color.White)
-        {
-            return Color.Black;
-        }
-        return  Color.White;
-    }
-
-    private int getEnemyTurns(Game game){
+    private int placeAbleBuildingCount(Game game, Color playerColor){
         var tempGame = game.copy();
-        tempGame.ignoreRules(true);
-        Color currentColor = tempGame.getCurrentPlayer();
-        int enemyPlacement = 0;
 
-        for (Building building : tempGame.getPlacableBuildings()) {
-            if ((building.getId() == 1 || building.getId() == 12) && building.getColor() != currentColor){
-                for (int y = 0; y < 10; ++y) {
-                    for (int x = 0; x < 10; ++x) {
-                        Placement possiblePlacement = new Placement(x, y, Direction._0, building);
-                        if (tempGame.takeTurn(possiblePlacement, true)) {
-                            enemyPlacement++;
-                            tempGame.undoLastTurn();
-                        }
-                    }
-                }
-            }
-        }
+        
 
-        return enemyPlacement;
+        return 0;
     }
 
     private void firstTurn(Game tempGame, List<Placement> possiblePlacements){
@@ -363,7 +322,3 @@ public class AgentA implements Agent {
         return buildings;
     }
 }
-
-
-// neuner.turn(Direction._90);
-// gibt die positionen des gedrehten gebäudes aus
