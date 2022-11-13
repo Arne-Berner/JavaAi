@@ -8,33 +8,36 @@ import java.util.Objects;
 /**
  * Core class used to handle a full game of cathedral.
  *
- * The Game class is the core of this framework. It stores and handles all interactions and keeps
- * track of all players and the rules pertaining them.These rules can be toggled with
+ * The Game class is the core of this framework. It stores and handles all
+ * interactions and keeps
+ * track of all players and the rules pertaining them.These rules can be toggled
+ * with
  * {@link Game#ignoreRules(boolean)}.<br>
  * Example usage:
  *
  * <pre>
- *     // Instantiate the game
- *     Game game = new Game();
- *     // print the empty game to the console
- *     System.out.println(game);
+ * // Instantiate the game
+ * Game game = new Game();
+ * // print the empty game to the console
+ * System.out.println(game);
  *
- *     // Place the cathedral
- *     // create the placement
- *     Placement cathedral = new Placement(3, 3, Direction._0, Building.Blue_Cathedral);
- *     // make the placement
- *     game.takeTurn(cathedral);
- *     // print the game to the console
- *     System.out.println(game);
+ * // Place the cathedral
+ * // create the placement
+ * Placement cathedral = new Placement(3, 3, Direction._0, Building.Blue_Cathedral);
+ * // make the placement
+ * game.takeTurn(cathedral);
+ * // print the game to the console
+ * System.out.println(game);
  *
- *     // Place the black academy
- *     // create the placement
- *     Placement blackAcademy = new Placement(8, 3, Direction._270, Building.Black_Academy);
- *     // make the placement
- *     game.takeTurn(blackAcademy);
- *     // print the game to the console
- *     System.out.println(game);
+ * // Place the black academy
+ * // create the placement
+ * Placement blackAcademy = new Placement(8, 3, Direction._270, Building.Black_Academy);
+ * // make the placement
+ * game.takeTurn(blackAcademy);
+ * // print the game to the console
+ * System.out.println(game);
  * </pre>
+ * 
  * @author Eike Petersen {@literal <eike.petersen@fh-kiel.de>}
  * @version 1.0
  * @since 1.0
@@ -42,6 +45,8 @@ import java.util.Objects;
 public class Game {
   private final List<Turn> turns = new ArrayList<>();
   private boolean ignoreRules = false;
+  private List<Position> blackPosition = new ArrayList<>();
+  private List<Position> whitePosition = new ArrayList<>();
 
   /**
    * Instantiates a new Game with all needed settings and an empty {@link Board}.
@@ -81,7 +86,8 @@ public class Game {
    *
    *
    * @param placement the {@link Placement} to be made
-   * @return if the {@link Placement} could be successfully placed on the current {@link Board}
+   * @return if the {@link Placement} could be successfully placed on the current
+   *         {@link Board}
    */
   public boolean takeTurn(Placement placement) {
     return takeTurn(placement, false);
@@ -95,14 +101,14 @@ public class Game {
    * @param placement the {@link Placement} to be made
    * @param fast      if expensive region-computations should be skipped
    *                  (can lead to wrong boardstates)
-   * @return if the {@link Placement} could be successfully placed on the current {@link Board}
+   * @return if the {@link Placement} could be successfully placed on the current
+   *         {@link Board}
    */
   public boolean takeTurn(Placement placement, boolean fast) {
     if (placement == null
         || placement.building() == null
         || placement.position() == null
-        || !placement.position().isViable()
-    ) {
+        || !placement.position().isViable()) {
       return false;
     }
 
@@ -117,8 +123,10 @@ public class Game {
 
     turns.add(new Turn(turns.size(), nextBoardState, placement));
 
+
     return true;
   }
+
 
   /**
    * Gets the last {@link Turn}.
@@ -133,7 +141,8 @@ public class Game {
 
   /**
    * Undo last the last turn.
-   * All changes will be reverted. Can be used to get back to the starting {@link Board}.
+   * All changes will be reverted. Can be used to get back to the starting
+   * {@link Board}.
    */
   public void undoLastTurn() {
     if (turns.size() > 1) {
@@ -143,13 +152,12 @@ public class Game {
 
   /**
    * Forfeit the current turn.
-   * An no action {@link Turn} will be taken and the next player will be able to play.
+   * An no action {@link Turn} will be taken and the next player will be able to
+   * play.
    */
   public void forfeitTurn() {
     turns.add(new Turn(turns.size(), lastTurn().getBoard().copy()));
   }
-
-
 
   /**
    * Gets the current player {@link Color}.
@@ -187,7 +195,8 @@ public class Game {
 
   /**
    * Gets a list of unplaced {@link Building}s for the current player.
-   * if rules are ignored ({@link Game#ignoreRules(boolean)} all unplaced buildings are returned.
+   * if rules are ignored ({@link Game#ignoreRules(boolean)} all unplaced
+   * buildings are returned.
    *
    * @return the list of unplaced {@link Building}s
    */
@@ -208,10 +217,10 @@ public class Game {
     return lastTurn().getBoard().getPlacableBuildings(player);
   }
 
-
   /**
    * Gets all currently unplaced {@link Building}s in a list.
-   * There are no numbers for {@link Building}s. The buildings can be all {@link Color}s.
+   * There are no numbers for {@link Building}s. The buildings can be all
+   * {@link Color}s.
    *
    * @return a list of all currently unplaced {@link Building}s
    */
@@ -231,28 +240,26 @@ public class Game {
 
   /**
    * The score contained in a map.
-   * There are always scores for the {@link Color#Black} and the {@link Color#White} contained. <br>
-   * They range from 47 to 0 and show the aggregate of all unplaced buildings of the chosen color.
+   * There are always scores for the {@link Color#Black} and the
+   * {@link Color#White} contained. <br>
+   * They range from 47 to 0 and show the aggregate of all unplaced buildings of
+   * the chosen color.
    *
-   * @return the map with the score for {@link Color#Black} and {@link Color#White}
+   * @return the map with the score for {@link Color#Black} and
+   *         {@link Color#White}
    */
   public Map<Color, Integer> score() {
     return lastTurn().score();
   }
 
-
-
-
-
   /**
    * @return gets your own score as int
    */
-  public int getPlayerScore(Color color)
-  {
-      var scores = this.score();
-      int currentPlayerScore = scores.get(color);
+  public int getPlayerScore(Color color) {
+    var scores = this.score();
+    int currentPlayerScore = scores.get(color);
 
-      return currentPlayerScore;
+    return currentPlayerScore;
   }
 
   /**
@@ -262,9 +269,9 @@ public class Game {
    *
    * @return true if no buildings can be placed, false otherwise
    */
-  public boolean isFinished(){
-    for(Building unplacedBuilding: getBoard().getAllUnplacedBuildings()){
-      if(!unplacedBuilding.getPossiblePlacements(this).isEmpty()){
+  public boolean isFinished() {
+    for (Building unplacedBuilding : getBoard().getAllUnplacedBuildings()) {
+      if (!unplacedBuilding.getPossiblePlacements(this).isEmpty()) {
         return false;
       }
     }
@@ -273,7 +280,8 @@ public class Game {
 
   /**
    * Enables or disables checks witch player can place stones
-   * If set to true any building can be placed anytime. It still has to be a valid position.
+   * If set to true any building can be placed anytime. It still has to be a valid
+   * position.
    *
    * @param ignoreRules should certain rules be ignored
    */
@@ -283,7 +291,8 @@ public class Game {
 
   /**
    * Returns if certain rules can be ignored
-   * If set to true any building can be placed anytime. It still has to be a valid position.
+   * If set to true any building can be placed anytime. It still has to be a valid
+   * position.
    *
    * @return returns if rules are being ignored
    */
@@ -293,8 +302,10 @@ public class Game {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     Game game = (Game) o;
     return ignoreRules == game.ignoreRules && Objects.equals(turns, game.turns);
   }
@@ -306,6 +317,7 @@ public class Game {
 
   @Override
   public String toString() {
-    return "Current Turn: " + turns.size() + (ignoreRules ? " (Rules ignored)" : "") + "\nLast Turn and Boardstate:\n" + lastTurn();
+    return "Current Turn: " + turns.size() + (ignoreRules ? " (Rules ignored)" : "") + "\nLast Turn and Boardstate:\n"
+        + lastTurn();
   }
 }
