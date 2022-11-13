@@ -163,6 +163,7 @@ public class AgentA implements Agent {
 
         Color currentPlayer = tempGame.getCurrentPlayer();
         Color enemyPlayer = tempGame.getEnemyPlayer();
+
         // nach dem letzten zug
         tempGame.undoLastTurn();
         int enemyTurns = getTurnCount(tempGame, enemyPlayer);
