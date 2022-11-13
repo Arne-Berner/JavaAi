@@ -21,8 +21,8 @@ public class AgentB implements Agent {
 
     public static void main(String[] args) {
         CathedralGUI.start(Settings.Builder()
-        .token("MTAzNDA4MjI4NTAyMjEwMTU2NA.G4LMpA.UUuWQC_AYk5UqhuJihNg4nYSXcHOu1JYfBU5mU")
-        .build(), new AgentA());
+                .token("MTAzNDA4MjI4NTAyMjEwMTU2NA.G4LMpA.UUuWQC_AYk5UqhuJihNg4nYSXcHOu1JYfBU5mU")
+                .build(), new AgentA());
     }
 
     private PrintStream console;
@@ -46,7 +46,6 @@ public class AgentB implements Agent {
     // problem: wenn er nicht nach links, rechts, unten, oben setzen kann, setzt er
     // nichtmehr
 
-
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
         List<Placement> possiblePlacements = new ArrayList<>();
@@ -57,21 +56,21 @@ public class AgentB implements Agent {
         if (possiblePlacements.isEmpty()) {
             for (Building building : game.getPlacableBuildings()) {
                 var buildPlacements = building.getAllPossiblePlacements();
-                for(Placement plac : buildPlacements){
+                for (Placement plac : buildPlacements) {
                     possiblePlacements.add(plac);
                 }
             }
         }
 
-
-        // sollte eigentlich die position des letzten zugs nehmen, funktioniert aber nicht
+        // sollte eigentlich die position des letzten zugs nehmen, funktioniert aber
+        // nicht
         lastPosition = possiblePlacements.get(0).position();
         if (possiblePlacements.isEmpty()) {
             return Optional.empty();
         } else {
             return Optional
                     .of(new ArrayList<>(possiblePlacements)
-                    .get(new Random().nextInt(possiblePlacements.size())));
+                            .get(new Random().nextInt(possiblePlacements.size())));
         }
     }
 
@@ -85,4 +84,3 @@ public class AgentB implements Agent {
 
     }
 }
-

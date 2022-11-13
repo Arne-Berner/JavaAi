@@ -1,18 +1,11 @@
 package de.fhkiel.ki.cathedral;
 
-import static org.mockito.Mockito.never;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.swing.JComponent;
-import javax.swing.text.Utilities;
-
-import org.junit.jupiter.api.extension.Extensions;
-
-import com.fasterxml.jackson.datatype.jdk8.PackageVersion;
 
 import de.fhkiel.ki.cathedral.ai.Agent;
 import de.fhkiel.ki.cathedral.game.Building;
@@ -58,8 +51,7 @@ public class AgentA implements Agent {
         firstTurn(tempGame, possiblePlacements);
         List<Building> buildings = getSortedBuildings(game);
 
-
-        //random placement
+        // random placement
         if (possiblePlacements.isEmpty()) {
             for (Building building : game.getPlacableBuildings()) {
                 for (int y = 0; y < 10; ++y) {
