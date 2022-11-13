@@ -59,8 +59,8 @@ public class AgentA implements Agent {
         List<Building> buildings = getSortedBuildings(game);
 
 
+        //random placement
         if (possiblePlacements.isEmpty()) {
-            console.println("Nu isses random...");
             for (Building building : game.getPlacableBuildings()) {
                 for (int y = 0; y < 10; ++y) {
                     for (int x = 0; x < 10; ++x) {
@@ -75,8 +75,6 @@ public class AgentA implements Agent {
                 }
             }
         }
-
-        console.println("Anzahl möglicher Züge: " + possiblePlacements.size());
 
         if (possiblePlacements.isEmpty()) {
             return Optional.empty();
