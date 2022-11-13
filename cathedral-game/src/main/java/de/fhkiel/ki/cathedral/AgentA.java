@@ -58,68 +58,6 @@ public class AgentA implements Agent {
         firstTurn(tempGame, possiblePlacements);
         List<Building> buildings = getSortedBuildings(game);
 
-        for (Building building : buildings) {
-            boolean gridloop = true;
-            boolean goingDown = true;
-            Position possiblePosition = new Position(lastPosition.x(), lastPosition.y());
-            int y = possiblePosition.y();
-            int x = possiblePosition.x();
-            while (gridloop) {
-                if (y < 9 && goingDown) {
-                    ++y;
-                } else if (y > 0) {
-                    --y;
-                    goingDown = false;
-                } else {
-                    gridloop = false;
-                }
-                possiblePosition = new Position(x, y);
-                if (placed == false) {
-                    for (Direction direction : building.getTurnable().getPossibleDirections()) {
-                        Placement possiblePlacement = new Placement(possiblePosition, direction, building);
-                        if (tempGame.takeTurn(possiblePlacement, true)) {
-                            possiblePlacements.add(possiblePlacement);
-                            tempGame.undoLastTurn();
-                            placed = true;
-                        }
-                    }
-                }
-            }
-            gridloop = true;
-        }
-
-        if (possiblePlacements.isEmpty())
-            console.println("WIR SIND IM X SEKTOR");
-        for (Building building : buildings) {
-            boolean gridloop = true;
-            boolean goingRight = true;
-            boolean goingLeft = true;
-            Position possiblePosition = new Position(lastPosition.x(), lastPosition.y());
-            int y = possiblePosition.y();
-            int x = possiblePosition.x();
-            while (gridloop) {
-                if (x < 9 && goingRight) {
-                    ++x;
-                } else if (x > 0 && goingLeft) {
-                    --x;
-                    goingRight = false;
-                } else {
-                    gridloop = false;
-                }
-                possiblePosition = new Position(x, y);
-                if (placed == false) {
-                    for (Direction direction : building.getTurnable().getPossibleDirections()) {
-                        Placement possiblePlacement = new Placement(possiblePosition, direction, building);
-                        if (tempGame.takeTurn(possiblePlacement, true)) {
-                            possiblePlacements.add(possiblePlacement);
-                            tempGame.undoLastTurn();
-                            placed = true;
-                        }
-                    }
-                }
-            }
-            gridloop = true;
-        }
 
         if (possiblePlacements.isEmpty()) {
             console.println("Nu isses random...");
