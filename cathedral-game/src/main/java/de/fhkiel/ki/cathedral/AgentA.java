@@ -49,7 +49,7 @@ public class AgentA implements Agent {
         Game tempGame = game.copy();
         boolean placed = false;
         firstTurn(tempGame, possiblePlacements);
-        List<Building> buildings = getSortedBuildings(game);
+        List<Building> buildings = Utility.getSortedBuildings(game);
 
         // random placement
         if (possiblePlacements.isEmpty()) {
@@ -345,18 +345,5 @@ public class AgentA implements Agent {
             }
         }
 
-    }
-
-    private List<Building> getSortedBuildings(Game game) {
-        List<Building> buildings = new ArrayList<Building>();
-        for (int i = 5; i > 0; i--) {
-            for (Building building : game.getPlacableBuildings()) {
-                if (building.score() == i) {
-                    buildings.add(building);
-                }
-            }
-        }
-
-        return buildings;
     }
 }

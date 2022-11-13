@@ -164,4 +164,17 @@ public class Utility {
 
         return false;
     }
+
+    public static List<Building> getSortedBuildings(Game game) {
+        List<Building> buildings = new ArrayList<Building>();
+        for (int i = 5; i > 0; i--) {
+            for (Building building : game.getPlacableBuildings()) {
+                if (building.score() == i) {
+                    buildings.add(building);
+                }
+            }
+        }
+
+        return buildings;
+    }
 }
