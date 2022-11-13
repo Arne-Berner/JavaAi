@@ -63,9 +63,7 @@ public class AgentB implements Agent {
             }
         }
 
-        console.println("Anzahl möglicher Züge: " + possiblePlacements.size());
 
-        console.println(possiblePlacements.get(0).position().toString());
         // sollte eigentlich die position des letzten zugs nehmen, funktioniert aber nicht
         lastPosition = possiblePlacements.get(0).position();
         if (possiblePlacements.isEmpty()) {
