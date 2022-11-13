@@ -288,13 +288,13 @@ public class AgentA implements Agent {
                 Position cathedralPosition = tempGame.getBoard().getPlacedBuildings().get(0).position();
                 if (cathedralPosition.x() < 5) {
                     // nur rechte positionen setzen
-                    var possiblePosition = new Position(6, 4);
+                    var possiblePosition = new Position(7, 4);
                     Placement possiblePlacement = new Placement(possiblePosition, Direction._90, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
                     }
 
-                    possiblePosition = new Position(6, 5);
+                    possiblePosition = new Position(7, 5);
                     possiblePlacement = new Placement(possiblePosition, Direction._90, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
@@ -302,13 +302,13 @@ public class AgentA implements Agent {
                 }
                 if (cathedralPosition.x() > 4) {
                     // nur linke positionen setzen
-                    var possiblePosition = new Position(3, 4);
+                    var possiblePosition = new Position(2, 4);
                     Placement possiblePlacement = new Placement(possiblePosition, Direction._270, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
                     }
 
-                    possiblePosition = new Position(3, 5);
+                    possiblePosition = new Position(2, 5);
                     possiblePlacement = new Placement(possiblePosition, Direction._270, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
@@ -316,13 +316,13 @@ public class AgentA implements Agent {
                 }
                 if (cathedralPosition.y() < 5) {
                     // nur untere positionen setzen
-                    var possiblePosition = new Position(4, 6);
+                    var possiblePosition = new Position(4, 7);
                     Placement possiblePlacement = new Placement(possiblePosition, Direction._180, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
                     }
 
-                    possiblePosition = new Position(5, 6);
+                    possiblePosition = new Position(5, 7);
                     possiblePlacement = new Placement(possiblePosition, Direction._180, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
@@ -330,13 +330,13 @@ public class AgentA implements Agent {
                 }
                 if (cathedralPosition.y() > 4) {
                     // nur obere positionen setzen
-                    var possiblePosition = new Position(4, 3);
+                    var possiblePosition = new Position(4, 2);
                     Placement possiblePlacement = new Placement(possiblePosition, Direction._0, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
                     }
 
-                    possiblePosition = new Position(5, 3);
+                    possiblePosition = new Position(5, 2);
                     possiblePlacement = new Placement(possiblePosition, Direction._0, neuner);
                     if (tempGame.takeTurn(possiblePlacement, true)) {
                         possiblePlacements.add(possiblePlacement);
