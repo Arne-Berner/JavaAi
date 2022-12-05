@@ -63,64 +63,41 @@ public class Utility {
      */
     public static int getLastTurnScore(Game game) {
         Game tempGame = game.copy();
+        boolean isFillPhase = Utility.isFillphase(tempGame);
+        int turnScore = 0;
 
-        Color currentPlayer = tempGame.getCurrentPlayer();
-        Color enemyPlayer = tempGame.getEnemyPlayer();
+        if (!isFillPhase) {
 
-        // nach dem letzten zug
-        tempGame.undoLastTurn();
-        int enemyTurns = getTurnCount(tempGame, enemyPlayer);
-        int ownScore = tempGame.getPlayerScore(currentPlayer);
-        int enemyScore = tempGame.getPlayerScore(enemyPlayer);
-        int enemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
+            Color currentPlayer = tempGame.getCurrentPlayer();
+            Color enemyPlayer = tempGame.getEnemyPlayer();
 
-        // vor dem letzten zug
-        tempGame.undoLastTurn();
-        int oldEnemyTurns = getTurnCount(tempGame, enemyPlayer);
-        int oldOwnScore = tempGame.getPlayerScore(currentPlayer);
-        int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
-        int oldEnemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
+            // nach dem letzten zug
+            tempGame.undoLastTurn();
+            List<Position> freeFields = Utility.getFreeFields(tempGame);
+            int turns = freeFields.size();
+            int ownScore = tempGame.getPlayerScore(currentPlayer);
+            int enemyScore = tempGame.getPlayerScore(enemyPlayer);
+            int enemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
 
-        // muss alles moeglichst hoch sein
-        // wird doppelt gezaehlt durch die flaeche die eingenommen wird
-        float ownScoreDiff = (oldOwnScore - ownScore);
-        int enemyScoreDiff = (enemyScore - oldEnemyScore);
-        int enemyTurnDiff = oldEnemyTurns - enemyTurns;
-        int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
+            // vor dem letzten zug
+            tempGame.undoLastTurn();
+            List<Position> oldFreeFields = Utility.getFreeFields(tempGame);
+            int oldTurns = oldFreeFields.size();
+            int oldOwnScore = tempGame.getPlayerScore(currentPlayer);
+            int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
+            int oldEnemyBuildingScore = getPlaceAbleBuildingScore(tempGame, enemyPlayer);
 
-        int turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
+            // muss alles moeglichst hoch sein
+            // wird doppelt gezaehlt durch die flaeche die eingenommen wird
+            float ownScoreDiff = (oldOwnScore - ownScore);
+            int enemyScoreDiff = (enemyScore - oldEnemyScore);
+            int enemyTurnDiff = oldTurns - turns;
+            int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
+
+            turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
+        }
 
         return turnScore;
-    }
-
-    /**
-     * 
-     * Gets the number of possible turns
-     * 
-     * @return number of enemy turns as int
-     */
-    public static int getTurnCount(Game tempGame, Color player) {
-        tempGame.ignoreRules(true);
-        int enemyPlacement = 0;
-        Building building = null;
-        if (player == Color.White) {
-            building = Building.White_Tavern;
-        } else {
-            building = Building.Black_Tavern;
-        }
-
-        for (int y = 0; y < 10; ++y) {
-            for (int x = 0; x < 10; ++x) {
-                Placement possiblePlacement = new Placement(x, y, Direction._0, building);
-                if (tempGame.takeTurn(possiblePlacement, true)) {
-                    enemyPlacement++;
-                    tempGame.undoLastTurn();
-                }
-            }
-        }
-        tempGame.ignoreRules(false);
-
-        return enemyPlacement;
     }
 
     public static int getPlaceAbleBuildingScore(Game game, Color player) {
@@ -150,7 +127,7 @@ public class Utility {
 
         tempGame.ignoreRules(true);
 
-        for (Building building : buildings){
+        for (Building building : buildings) {
             for (Position field : freeFields) {
                 Placement possiblePlacement = new Placement(field, Direction._0, building);
                 if (tempGame.takeTurn(possiblePlacement, true)) {

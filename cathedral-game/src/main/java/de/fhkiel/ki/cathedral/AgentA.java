@@ -47,33 +47,47 @@ public class AgentA implements Agent {
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
         List<Placement> possiblePlacements = new ArrayList<>();
         Game tempGame = game.copy();
-        boolean placed = false;
-        firstTurn(tempGame, possiblePlacements);
-        List<Building> buildings = Utility.getSortedBuildings(game);
+        List<Position> freeFields = Utility.getFreeFields(tempGame);
+        boolean isFillPhase = Utility.isFillphase(tempGame);
 
-        // random placement
-        if (possiblePlacements.isEmpty()) {
-            for (Building building : game.getPlacableBuildings()) {
-                for (int y = 0; y < 10; ++y) {
-                    for (int x = 0; x < 10; ++x) {
-                        for (Direction direction : building.getTurnable().getPossibleDirections()) {
-                            Placement possiblePlacement = new Placement(x, y, direction, building);
-                            if (tempGame.takeTurn(possiblePlacement, true)) {
-                                possiblePlacements.add(possiblePlacement);
-                                tempGame.undoLastTurn();
+        //noch keine Füllphase
+        if (!isFillPhase) {
+            boolean placed = false;
+            firstTurn(tempGame, possiblePlacements);
+            List<Building> buildings = Utility.getSortedBuildings(game);
+
+            // random placement
+            if (possiblePlacements.isEmpty()) {
+                for (Building building : game.getPlacableBuildings()) {
+                    for (int y = 0; y < 10; ++y) {
+                        for (int x = 0; x < 10; ++x) {
+                            for (Direction direction : building.getTurnable().getPossibleDirections()) {
+                                Placement possiblePlacement = new Placement(x, y, direction, building);
+                                if (tempGame.takeTurn(possiblePlacement, true)) {
+                                    possiblePlacements.add(possiblePlacement);
+                                    tempGame.undoLastTurn();
+                                }
                             }
                         }
                     }
                 }
             }
+
+            if (possiblePlacements.isEmpty()) {
+                return Optional.empty();
+            } else {
+                return Optional
+                        .of(possiblePlacements.get(0));
+            }
+        } else {
+        //fillphase
+        // Punkte minimieren
+        // welche steine k;oennen nicht mehr gelegt werden
+        // felderanzahl als punkte minimum nehmen
+
         }
 
-        if (possiblePlacements.isEmpty()) {
-            return Optional.empty();
-        } else {
-            return Optional
-                    .of(possiblePlacements.get(0));
-        }
+
     }
 
     /**
@@ -96,24 +110,26 @@ public class AgentA implements Agent {
         if (!isFillPhase) {
             // nach dem letzten zug
             tempGame.undoLastTurn();
+            List<Position> currentFreeFields = Utility.getFreeFields(tempGame);
+            int turns = currentFreeFields.size();
             int ownScore = tempGame.getPlayerScore(currentPlayer);
             int enemyScore = tempGame.getPlayerScore(enemyPlayer);
             int enemyBuildingScore = Utility.getPlaceAbleBuildingScore(tempGame, enemyPlayer);
-            int enemyTurns = Utility.getTurnCount(tempGame, enemyPlayer);
 
             // vor dem letzten zug
             tempGame.undoLastTurn();
+            List<Position> oldFreeFields = Utility.getFreeFields(tempGame);
+            int oldTurns = oldFreeFields.size();
             int oldOwnScore = tempGame.getPlayerScore(currentPlayer);
             int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
             int oldEnemyBuildingScore = Utility.getPlaceAbleBuildingScore(tempGame, enemyPlayer);
-            int oldEnemyTurns = Utility.getTurnCount(tempGame, enemyPlayer);
 
             // muss alles moeglichst hoch sein
             // wird doppelt gezaehlt durch die flaeche die eingenommen wird
             int ownScoreDiff = (oldOwnScore - ownScore);
             int enemyScoreDiff = (enemyScore - oldEnemyScore);
             int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
-            int enemyTurnDiff = oldEnemyTurns - enemyTurns;
+            int enemyTurnDiff = oldTurns - turns;
 
             int turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
 
@@ -202,6 +218,7 @@ public class AgentA implements Agent {
 
     @Override
     public String evaluateLastTurn(Game game) {
+        Utility.getLastTurnScore(game);
         return getLastTurnScoreAsString(game);
     }
 
