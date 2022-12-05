@@ -49,12 +49,12 @@ public class AgentA implements Agent {
         Game tempGame = game.copy();
         List<Position> freeFields = Utility.getFreeFields(tempGame);
         boolean isFillPhase = Utility.isFillphase(tempGame);
+        List<Building> buildings = Utility.getSortedBuildings(game);
 
-        //noch keine Füllphase
+        // noch keine Füllphase
         if (!isFillPhase) {
             boolean placed = false;
             firstTurn(tempGame, possiblePlacements);
-            List<Building> buildings = Utility.getSortedBuildings(game);
 
             // random placement
             if (possiblePlacements.isEmpty()) {
@@ -80,13 +80,64 @@ public class AgentA implements Agent {
                         .of(possiblePlacements.get(0));
             }
         } else {
-        //fillphase
-        // Punkte minimieren
-        // welche steine k;oennen nicht mehr gelegt werden
-        // felderanzahl als punkte minimum nehmen
+            // fillphase
+            // Punkte minimieren
+            // welche steine koennen nicht mehr gelegt werden
+            // felderanzahl als punkte minimum nehmen
+
+            // 1. Felder der eigenen Farbe finden
+            Color[][] field = tempGame.getBoard().getField();
+            List<Position> playerPlaced = new ArrayList<Position>();
+            for (int x = 0; x < 10; x++) {
+                for (int y = 0; y < 10; y++) {
+                    if (field[x][y] == tempGame.getCurrentPlayer()) {
+                        playerPlaced.add(new Position(x, y));
+                    }
+                }
+            }
+
+            int finalscore = 0;
+            List<Placement> goodPlacements = new ArrayList<Placement>();
+            // wuerde die suche abbrechen, wenn man mehr gebauede setzen kann, als es felder
+            // gibt - falsch
+            while (tempGame.score().get(tempGame.getCurrentPlayer()) < freeFields.size()) {
+                for (Building building : buildings) {
+                    for (var direction : Direction.values()) {
+                        for (Position corner : building.corners(direction)) {
+                            // dummy
+                            var placementPosition = new Position(5, 5);
+                            int placementScore = 0;
+                            // wieder ne innere loop auf die placements bezogen
+                            {
+                                var actualPosition = placementPosition.plus(corner);
+                                if (playerPlaced.contains(actualPosition)) {
+                                    placementScore++;
+                                }
+
+                            }
+                            if (finalscore == placementScore) {
+                                // dummy
+                                goodPlacements.add(new Placement(placementPosition, direction, building));
+                            }
+                            if (finalscore < placementScore) {
+                                // dummy
+                                goodPlacements = new ArrayList<Placement>();
+                                goodPlacements.add(new Placement(placementPosition, direction, building));
+                            }
+                        }
+                    }
+                }
+            }
+            // 3. pro stein (grossem) während Steinpunkte > einzunehmende Felder
+            // a)Alle Felder und Positionen ausprobieren, die möglichst viele
+            // überschneidungen
+            // in corners und gesetzten gleichfarbigen steinen hat
+            // Die position(en) als Startposition wählen
+            // nächsten Stein ähnlich wählen und setzen bis alle steine gesetzt sind
+
+            return Optional.empty();
 
         }
-
 
     }
 
