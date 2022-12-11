@@ -84,6 +84,12 @@ public class AgentA implements Agent {
             }
         } else {
             // fillphase
+
+            //Aufgaben: Lokale suche mit den gewählten steinen ausbauen
+            //Probleme: es könnte sein, dass ein stein nicht so viele überschneidungen hat, und trotzdem ein sehr gute rzug ist
+            // zum beispiel wenn ein stein mit vielen überschneidungen 5 weitere Züge verhindert (sehr unwahrscheinlich)
+
+
             // Punkte minimieren
             // welche steine koennen nicht mehr gelegt werden
             // felderanzahl als punkte minimum nehmen
@@ -99,6 +105,8 @@ public class AgentA implements Agent {
                     }
                 }
             }
+
+            
 
             // für jedes placement in goodplacements eine neue liste an good placements
             // machen mit freien Feldern
@@ -154,12 +162,6 @@ public class AgentA implements Agent {
 
             }
 
-            // 3. pro stein (grossem) während Steinpunkte > einzunehmende Felder
-            // a)Alle Felder und Positionen ausprobieren, die möglichst viele
-            // überschneidungen
-            // in corners und gesetzten gleichfarbigen steinen hat
-            // Die position(en) als Startposition wählen
-            // nächsten Stein ähnlich wählen und setzen bis alle steine gesetzt sind
             console.println(goodPlacements.get(0).form());
             console.println(goodPlacements.get(0).building().corners(goodPlacements.get(0).direction()));
 
