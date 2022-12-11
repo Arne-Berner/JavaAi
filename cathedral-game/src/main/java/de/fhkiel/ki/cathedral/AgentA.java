@@ -2,6 +2,7 @@ package de.fhkiel.ki.cathedral;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +85,8 @@ public class AgentA implements Agent {
             // Punkte minimieren
             // welche steine koennen nicht mehr gelegt werden
             // felderanzahl als punkte minimum nehmen
+            
+
 
             // 1. Felder der eigenen Farbe finden
             Color[][] field = tempGame.getBoard().getField();
@@ -97,12 +100,12 @@ public class AgentA implements Agent {
                 }
             }
 
+            //für jedes placement in goodplacements eine neue liste an good placements machen mit freien Feldern
+            //solange wiederholen, bis die neue liste an goodplacements leer ist, weil kein gebaeude gesetzt werden kann.
+            // oder bis alle gebäude gesetzt sind.
+
             int finalscore = 0;
             List<Placement> goodPlacements = new ArrayList<Placement>();
-            // wuerde die suche abbrechen, wenn man mehr gebauede setzen kann, als es felder
-            // gibt - falsch
-            // passt das kleinste gebaeude theoretisch noch rein?
-            // bzw nur gebaeude waehlen die nicht groesser sind als die restfelder
             int placementScore = 0;
             for (Building building : buildings) {
                 if (building.score() <= ownedFields.size()) {
@@ -133,12 +136,14 @@ public class AgentA implements Agent {
                     }
                 }
             }
+
             // 3. pro stein (grossem) während Steinpunkte > einzunehmende Felder
             // a)Alle Felder und Positionen ausprobieren, die möglichst viele
             // überschneidungen
             // in corners und gesetzten gleichfarbigen steinen hat
             // Die position(en) als Startposition wählen
             // nächsten Stein ähnlich wählen und setzen bis alle steine gesetzt sind
+
 
             return Optional.empty();
 
