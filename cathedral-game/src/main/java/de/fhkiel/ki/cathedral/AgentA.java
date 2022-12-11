@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import javax.swing.JComponent;
 
@@ -46,7 +47,6 @@ public class AgentA implements Agent {
 
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
-        List<Placement> possiblePlacements = new ArrayList<>();
         Game tempGame = game.copy();
         List<Position> freeFields = Utility.getFreeFields(tempGame);
         boolean isFillPhase = Utility.isFillphase(tempGame);
@@ -54,6 +54,7 @@ public class AgentA implements Agent {
 
         // noch keine Füllphase
         if (!isFillPhase) {
+            List<Placement> possiblePlacements = new ArrayList<>();
             boolean placed = false;
             firstTurn(tempGame, possiblePlacements);
 
@@ -78,15 +79,14 @@ public class AgentA implements Agent {
                 return Optional.empty();
             } else {
                 return Optional
-                        .of(possiblePlacements.get(0));
+                    .of(new ArrayList<>(possiblePlacements)
+                            .get(new Random().nextInt(possiblePlacements.size())));
             }
         } else {
             // fillphase
             // Punkte minimieren
             // welche steine koennen nicht mehr gelegt werden
             // felderanzahl als punkte minimum nehmen
-            
-
 
             // 1. Felder der eigenen Farbe finden
             Color[][] field = tempGame.getBoard().getField();
@@ -100,41 +100,58 @@ public class AgentA implements Agent {
                 }
             }
 
-            //für jedes placement in goodplacements eine neue liste an good placements machen mit freien Feldern
-            //solange wiederholen, bis die neue liste an goodplacements leer ist, weil kein gebaeude gesetzt werden kann.
+            // für jedes placement in goodplacements eine neue liste an good placements
+            // machen mit freien Feldern
+            // solange wiederholen, bis die neue liste an goodplacements leer ist, weil kein
+            // gebaeude gesetzt werden kann.
             // oder bis alle gebäude gesetzt sind.
 
             int finalscore = 0;
             List<Placement> goodPlacements = new ArrayList<Placement>();
-            int placementScore = 0;
             for (Building building : buildings) {
+                List<Placement> possiblePositions = new ArrayList<>();
                 if (building.score() <= ownedFields.size()) {
                     for (var direction : Direction.values()) {
                         for (Position ownedField : ownedFields) {
-                            for (Position corner : building.corners(direction)) {
-                                // dummy
-                                Position actualPosition = ownedField;
-                                actualPosition.plus(corner);
-
-                                if (playerPlaced.contains(actualPosition)) {
-                                    placementScore++;
-                                }
-                            }
-
-                            if (finalscore == placementScore) {
-                                // dummy
-                                goodPlacements.add(new Placement(ownedField, direction, building));
-                            }
-
-                            if (finalscore < placementScore) {
-                                // dummy
-                                goodPlacements = new ArrayList<Placement>();
-                                goodPlacements.add(new Placement(ownedField, direction, building));
+                            Placement possiblePlacement = new Placement(ownedField, direction, building);
+                            if (tempGame.takeTurn(possiblePlacement, true)) {
+                                possiblePositions.add(possiblePlacement);
+                                tempGame.undoLastTurn();
                             }
 
                         }
                     }
                 }
+
+                for (Placement possiblePosition : possiblePositions) {
+                int placementScore = 0;
+
+                    for (Position corner : building.corners(possiblePosition.direction())) {
+                        // dummy
+                        Position placementPosition = possiblePosition.position();
+                        Position actualPosition = placementPosition.plus(corner);
+                        if (actualPosition.y() < 0 || actualPosition.y() > 9) {
+                            placementScore++;
+                        } else if (actualPosition.x() < 0 || actualPosition.x() > 9) {
+                            placementScore++;
+                        } else if (playerPlaced.contains(actualPosition)) {
+                            placementScore++;
+                        }
+
+                    }
+                    if (finalscore == placementScore) {
+                        // dummy
+                        goodPlacements.add(possiblePosition);
+                    }
+
+                    if (finalscore < placementScore) {
+                        // dummy
+                        goodPlacements = new ArrayList<Placement>();
+                        goodPlacements.add(possiblePosition);
+                        finalscore = placementScore;
+                    }
+                }
+
             }
 
             // 3. pro stein (grossem) während Steinpunkte > einzunehmende Felder
@@ -143,9 +160,12 @@ public class AgentA implements Agent {
             // in corners und gesetzten gleichfarbigen steinen hat
             // Die position(en) als Startposition wählen
             // nächsten Stein ähnlich wählen und setzen bis alle steine gesetzt sind
+            console.println(goodPlacements.get(0).form());
+            console.println(goodPlacements.get(0).building().corners(goodPlacements.get(0).direction()));
 
-
-            return Optional.empty();
+            return Optional
+                    .of(new ArrayList<>(goodPlacements)
+                            .get(new Random().nextInt(goodPlacements.size())));
 
         }
 
