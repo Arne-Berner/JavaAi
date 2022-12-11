@@ -26,6 +26,25 @@ public class Utility {
         return freeFieldPositions;
     }
 
+    public static List<Position> getOwnedFields(Game game) {
+        List<Position> freeFieldPositions = new ArrayList<Position>();
+        Color[][] fields = game.getBoard().getField();
+        Color ownedColor = Color.White_Owned;
+        if(game.getCurrentPlayer() == Color.Black){
+            ownedColor = Color.Black_Owned;
+
+        }
+
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++) {
+                if (fields[y][x] == ownedColor) {
+                    freeFieldPositions.add(new Position(x, y));
+                }
+            }
+        }
+
+        return freeFieldPositions;
+    }
     public static List<Position> getBlackFields(Game game) {
         List<Position> blackFieldPositions = new ArrayList<Position>();
         Color[][] fields = game.getBoard().getField();

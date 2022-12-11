@@ -100,8 +100,11 @@ public class AgentA implements Agent {
             List<Placement> goodPlacements = new ArrayList<Placement>();
             // wuerde die suche abbrechen, wenn man mehr gebauede setzen kann, als es felder
             // gibt - falsch
-            while (tempGame.score().get(tempGame.getCurrentPlayer()) < freeFields.size()) {
+            //passt das kleinste gebaeude theoretisch noch rein?
+            // bzw nur gebaeude waehlen die nicht groesser sind als die restfelder
                 for (Building building : buildings) {
+                    if(building.score() <= freeFields.size())
+                    {
                     for (var direction : Direction.values()) {
                         for (Position corner : building.corners(direction)) {
                             // dummy
