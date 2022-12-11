@@ -87,6 +87,7 @@ public class AgentA implements Agent {
 
             // 1. Felder der eigenen Farbe finden
             Color[][] field = tempGame.getBoard().getField();
+            List<Position> ownedFields = Utility.getOwnedFields(tempGame);
             List<Position> playerPlaced = new ArrayList<Position>();
             for (int x = 0; x < 10; x++) {
                 for (int y = 0; y < 10; y++) {
@@ -100,33 +101,34 @@ public class AgentA implements Agent {
             List<Placement> goodPlacements = new ArrayList<Placement>();
             // wuerde die suche abbrechen, wenn man mehr gebauede setzen kann, als es felder
             // gibt - falsch
-            //passt das kleinste gebaeude theoretisch noch rein?
+            // passt das kleinste gebaeude theoretisch noch rein?
             // bzw nur gebaeude waehlen die nicht groesser sind als die restfelder
-                for (Building building : buildings) {
-                    if(building.score() <= freeFields.size())
-                    {
+            int placementScore = 0;
+            for (Building building : buildings) {
+                if (building.score() <= ownedFields.size()) {
                     for (var direction : Direction.values()) {
-                        for (Position corner : building.corners(direction)) {
-                            // dummy
-                            var placementPosition = new Position(5, 5);
-                            int placementScore = 0;
-                            // wieder ne innere loop auf die placements bezogen
-                            {
-                                var actualPosition = placementPosition.plus(corner);
+                        for (Position ownedField : ownedFields) {
+                            for (Position corner : building.corners(direction)) {
+                                // dummy
+                                Position actualPosition = ownedField;
+                                actualPosition.plus(corner);
+
                                 if (playerPlaced.contains(actualPosition)) {
                                     placementScore++;
                                 }
-
                             }
+
                             if (finalscore == placementScore) {
                                 // dummy
-                                goodPlacements.add(new Placement(placementPosition, direction, building));
+                                goodPlacements.add(new Placement(ownedField, direction, building));
                             }
+
                             if (finalscore < placementScore) {
                                 // dummy
                                 goodPlacements = new ArrayList<Placement>();
-                                goodPlacements.add(new Placement(placementPosition, direction, building));
+                                goodPlacements.add(new Placement(ownedField, direction, building));
                             }
+
                         }
                     }
                 }
