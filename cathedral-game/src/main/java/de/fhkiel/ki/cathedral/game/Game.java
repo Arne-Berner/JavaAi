@@ -180,7 +180,7 @@ public class Game {
    * Gets the enemy player {@link Color}.
    * Can be the {@link Color#Blue}, {@link Color#Black} or {@link Color#White}
    *
-   * @return the current player {@link Color}
+   * @return the enemy player {@link Color}
    */
   public Color getEnemyPlayer() {
     if (turns.size() == 1) {

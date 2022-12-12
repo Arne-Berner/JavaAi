@@ -51,14 +51,13 @@ public class AgentA implements Agent {
         Game tempGame = game.copy();
         List<Position> freeFields = Utility.getFreeFields(tempGame);
         boolean isFillPhase = Utility.isFillphase(tempGame);
-        List<Building> buildings = Utility.getSortedBuildings(game);
         Color playerColor = tempGame.getCurrentPlayer();
 
         // noch keine Füllphase
         if (!isFillPhase) {
             List<Placement> possiblePlacements = new ArrayList<>();
 
-            //erster Zug
+            // erster Zug
             if (firstTurn) {
                 possiblePlacements = firstTurn(tempGame);
 
@@ -72,38 +71,43 @@ public class AgentA implements Agent {
             // zweiter zug die Wand beruehren lassen?
             // erstmal Steine moeglichst gut klauen
             Color[][] field = tempGame.getBoard().getField();
-            List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
+            List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
             possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
             List<Placement> connectingPlacements = new ArrayList<Placement>();
 
-            for(Placement possiblePlacement : possiblePlacements){
+            for (Placement possiblePlacement : possiblePlacements) {
 
                 int placementScore = 0;
+                Direction direction = possiblePlacement.direction();
+                List<Position> corners = possiblePlacement.building().corners(direction);
 
-                for (Position corner : possiblePlacement.building().corners(possiblePlacement.direction())) {
-                    Position placementPosition = possiblePlacement.position();
-                    Position actualPosition = placementPosition.plus(corner);
+                for (Position corner : corners) {
+                    Position placementPosition = new Position(possiblePlacement.position().x(),
+                            possiblePlacement.position().y());
+                    if (placementPosition.isViable()) {
 
-                    if (playerPlaced.contains(actualPosition)) {
-                        placementScore++;
+                        Position cornerPosition = placementPosition.plus(corner);
+
+                        if (playerPlaced.contains(cornerPosition)) {
+                            placementScore++;
+                        }
                     }
-
                 }
 
-                if(placementScore == 1){
+                if (placementScore == 1) {
                     connectingPlacements.add(possiblePlacement);
                 }
             }
 
             boolean canTakeBuilding = false;
-            int bestScore = 500;
+            int bestScore = 0;
             Placement bestPlacement = null;
-            for(Placement connectingPlacement : connectingPlacements){
+            for (Placement connectingPlacement : connectingPlacements) {
                 tempGame.takeTurn(connectingPlacement);
-                
+
                 int currentScore = 0;
-                //first building that can steal, resets everything
-                if(Utility.enemyScoreDiff(tempGame) > 0 && canTakeBuilding == false){
+                // first building that can steal, resets everything
+                if (Utility.enemyScoreDiff(tempGame) > 0 && canTakeBuilding == false) {
                     canTakeBuilding = true;
                     bestScore = Utility.getLastTurnScore(tempGame);
                     bestPlacement = connectingPlacement;
@@ -111,70 +115,68 @@ public class AgentA implements Agent {
                     currentScore = Utility.getLastTurnScore(tempGame);
                 }
 
-
-                if(!canTakeBuilding){
-                    //forloop mit besseren placementscore
+                if (!canTakeBuilding) {
+                    // forloop mit besseren placementscore
                     // add to currentscore this new score
 
                 }
 
-                if(currentScore > bestScore){
+                if (currentScore > bestScore) {
                     bestScore = currentScore;
                     bestPlacement = connectingPlacement;
                 }
+                tempGame.undoLastTurn();
             }
 
             // fuer alle moeglichen Zuege an ein angrenzendes Feld
                 // setze einen Zug an ein angrenzendes Feld (nur eine ueberschneidung)
                 // evaluiere den Zug
                 // wenn ein Stein geklaut werden kann, gehe nicht in die naechste schleife
-                // bool?
                 // fuer alle neuen moeglichen Zuege an ein angrenzendes Feld
                     // setze einen Zug an ein angrenzendes Feld
                     // evaluiere den Zug
 
-
             // random placement
             // if (possiblePlacements.isEmpty()) {
-            //     for (Building building : game.getPlacableBuildings()) {
-            //         for (int y = 0; y < 10; ++y) {
-            //             for (int x = 0; x < 10; ++x) {
-            //                 for (Direction direction : building.getTurnable().getPossibleDirections()) {
-            //                     Placement possiblePlacement = new Placement(x, y, direction, building);
-            //                     if (tempGame.takeTurn(possiblePlacement, true)) {
-            //                         possiblePlacements.add(possiblePlacement);
-            //                         tempGame.undoLastTurn();
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }
+            // for (Building building : game.getPlacableBuildings()) {
+            // for (int y = 0; y < 10; ++y) {
+            // for (int x = 0; x < 10; ++x) {
+            // for (Direction direction : building.getTurnable().getPossibleDirections()) {
+            // Placement possiblePlacement = new Placement(x, y, direction, building);
+            // if (tempGame.takeTurn(possiblePlacement, true)) {
+            // possiblePlacements.add(possiblePlacement);
+            // tempGame.undoLastTurn();
+            // }
+            // }
+            // }
+            // }
+            // }
             // }
 
-            if (possiblePlacements.isEmpty()) {
+            if (bestPlacement == null) {
                 return Optional.empty();
             } else {
                 return Optional
-                        .of(new ArrayList<>(possiblePlacements)
-                                .get(new Random().nextInt(possiblePlacements.size())));
+                        .of(bestPlacement);
             }
         } else {
             // fillphase
 
-            //makes the recursive function possible
+            // makes the recursive function possible
             tempGame.ignoreRules(true);
 
-            //gets all placements, since it is fast enough (we used getGoodPlacements before)
+            // gets all placements, since it is fast enough (we used getGoodPlacements
+            // before)
             List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
                     Utility.getOwnedFields(tempGame, playerColor));
 
-            //if there is no placement to be made, return an empty turn
+            // if there is no placement to be made, return an empty turn
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
                 return Optional.empty();
             }
 
-            //entry point for the recursive function
+            // entry point for the recursive function
             Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
             tempGame.ignoreRules(false);
             return Optional.of(bestPlacement);

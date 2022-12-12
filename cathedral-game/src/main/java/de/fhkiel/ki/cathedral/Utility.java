@@ -202,7 +202,7 @@ public class Utility {
         List<Position> playerPlaced = new ArrayList<Position>();
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 10; y++) {
-                if (field[x][y] == playerColor) {
+                if (field[y][x] == playerColor) {
                     playerPlaced.add(new Position(x, y));
                 }
             }
@@ -272,8 +272,8 @@ public class Utility {
 
         if (!isFillPhase) {
 
-            Color currentPlayer = tempGame.getCurrentPlayer();
-            Color enemyPlayer = tempGame.getEnemyPlayer();
+            Color enemyPlayer = tempGame.getCurrentPlayer();
+            Color currentPlayer = tempGame.getEnemyPlayer();
 
             List<Position> freeFields = Utility.getFreeFields(tempGame);
             int turns = freeFields.size();
@@ -297,7 +297,12 @@ public class Utility {
             int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
 
             turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
+        if(turnScore > 5){
+            boolean test = true;
+
         }
+        }
+
 
         return turnScore;
     }
