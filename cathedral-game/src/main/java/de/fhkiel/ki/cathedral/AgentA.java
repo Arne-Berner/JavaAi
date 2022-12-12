@@ -84,53 +84,30 @@ public class AgentA implements Agent {
             }
         } else {
             // fillphase
-
-            // Aufgaben: Lokale suche mit den gewählten steinen ausbauen
             // Probleme: es könnte sein, dass ein stein nicht so viele überschneidungen hat,
             // und trotzdem ein sehr gute rzug ist
             // zum beispiel wenn ein stein mit vielen überschneidungen 5 weitere Züge
             // verhindert (sehr unwahrscheinlich)
 
+            // metriken
             // Punkte minimieren
             // welche steine koennen nicht mehr gelegt werden
             // felderanzahl als punkte minimum nehmen
 
+            Color playerColor = tempGame.getCurrentPlayer();
 
-            //rekursiv: endbedingung - punkte 0 || goodplacements leer
-            // geht es ueberhaupt, weil der naechste vom vorigen zug abhaengig ist?
-
-            // nicht rekursiv:
-            // bestPlacement
-            // while(punkte > 0 || goodPlacementsCount > 0)
-            
-            // in normalen worten: ich moechte so lange goodplacement aufrufen (mit setzen)
-            // bis ich keine goodPlacements mehr für den nächsten zug habe, oder der score 0 ist
-
-            
-
-            List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame);
+            tempGame.ignoreRules(true);
+            List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame, playerColor);
 
             if(goodPlacements.size() == 0)
             {
+            tempGame.ignoreRules(false);
                 return Optional.empty();
             }
 
-            Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements);
+            Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
+            tempGame.ignoreRules(false);
             return Optional.of(bestPlacement);
-
-            // für jedes placement in goodplacements eine neue liste an good placements
-            // machen mit freien Feldern
-            // solange wiederholen, bis die neue liste an goodplacements leer ist, weil kein
-            // gebaeude gesetzt werden kann.
-            // oder bis alle gebäude gesetzt sind.
-
-            console.println(goodPlacements.get(0).form());
-            console.println(goodPlacements.get(0).building().corners(goodPlacements.get(0).direction()));
-
-            return Optional
-                    .of(new ArrayList<>(goodPlacements)
-                            .get(new Random().nextInt(goodPlacements.size())));
-
         }
 
     }

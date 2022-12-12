@@ -48,31 +48,33 @@ public class Utility {
         return freeFieldPositions;
     }
 
-    public static int getPlacementScore (Game tempGame, Placement goodPlacement, int score){
+    public static int getPlacementScore(
+        Game tempGame, Placement goodPlacement, int score, Color playerColor) {
+
         tempGame.takeTurn(goodPlacement);
         int currentScore = tempGame.getPlayerScore(tempGame.getCurrentPlayer());
 
-        if(currentScore == 0){
+        if (currentScore == 0) {
             tempGame.undoLastTurn();
             return 0;
         }
 
-        var goodPlacements = getGoodPlacements(tempGame);
+        var goodPlacements = getGoodPlacements(tempGame, playerColor);
 
-        if(goodPlacements.size() == 0){
+        if (goodPlacements.size() == 0) {
             tempGame.undoLastTurn();
             return currentScore;
         }
 
         for (Placement placement : goodPlacements) {
 
-            currentScore = getPlacementScore(tempGame, placement, score);
+            currentScore = getPlacementScore(tempGame, placement, score, playerColor);
 
-            if(score > currentScore){
+            if (score > currentScore) {
                 score = currentScore;
             }
 
-            if(score == 0){
+            if (score == 0) {
                 tempGame.undoLastTurn();
                 return score;
             }
@@ -82,19 +84,20 @@ public class Utility {
         return score;
     }
 
-    public static Placement getBestPlacement(Game tempGame, List<Placement> goodPlacements) {
+    public static Placement getBestPlacement(
+        Game tempGame, List<Placement> goodPlacements, Color playerColor) {
 
         int score = 500;
         Placement bestPlacement = null;
         for (Placement goodPlacement : goodPlacements) {
-            int currentScore = getPlacementScore(tempGame, goodPlacement, score);
+            int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor);
 
-            if(score > currentScore){
+            if (score > currentScore) {
                 bestPlacement = goodPlacement;
                 score = currentScore;
             }
 
-            if(score == 0){
+            if (score == 0) {
                 return bestPlacement;
             }
         }
@@ -102,10 +105,11 @@ public class Utility {
         return bestPlacement;
     }
 
-    public static List<Placement> getGoodPlacements(Game tempGame) {
-        // vielleicht brauche ich eine funktion "get player buildings" anstatt getSortedBuildings
+    public static List<Placement> getGoodPlacements(Game tempGame, Color playerColor) {
+        // vielleicht brauche ich eine funktion "get player buildings" anstatt
+        // getSortedBuildings
 
-        List<Building> buildings = Utility.getSortedBuildings(tempGame);
+        List<Building> buildings = Utility.getSortedBuildingsForColor(tempGame, playerColor);
         Color[][] field = tempGame.getBoard().getField();
         List<Position> ownedFields = Utility.getOwnedFields(tempGame);
         List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
@@ -303,6 +307,22 @@ public class Utility {
             for (Building building : game.getPlacableBuildings()) {
                 if (building.score() == i) {
                     buildings.add(building);
+                }
+            }
+        }
+
+        return buildings;
+    }
+
+    public static List<Building> getSortedBuildingsForColor(Game game, Color playerColor) {
+        // TODO sehr teure sortierung
+        List<Building> buildings = new ArrayList<Building>();
+        for (int i = 5; i > 0; i--) {
+            for (Building building : game.getPlacableBuildings()) {
+                if (building.getColor() == playerColor) {
+                    if (building.score() == i) {
+                        buildings.add(building);
+                    }
                 }
             }
         }
