@@ -93,15 +93,16 @@ public class AgentA implements Agent {
             // Punkte minimieren
             // welche steine koennen nicht mehr gelegt werden
             // felderanzahl als punkte minimum nehmen
-
             Color playerColor = tempGame.getCurrentPlayer();
 
             tempGame.ignoreRules(true);
-            List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame, playerColor);
 
-            if(goodPlacements.size() == 0)
-            {
-            tempGame.ignoreRules(false);
+            List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
+            // List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame,
+            // playerColor);
+
+            if (goodPlacements.size() == 0) {
+                tempGame.ignoreRules(false);
                 return Optional.empty();
             }
 
@@ -109,7 +110,6 @@ public class AgentA implements Agent {
             tempGame.ignoreRules(false);
             return Optional.of(bestPlacement);
         }
-
     }
 
     /**
@@ -127,6 +127,7 @@ public class AgentA implements Agent {
             reason = "Du kannst keinen Zug mehr machen.";
             return reason;
         }
+
         List<Position> freeFields = Utility.getFreeFields(tempGame);
         boolean isFillPhase = Utility.isFillphase(tempGame);
         if (!isFillPhase) {

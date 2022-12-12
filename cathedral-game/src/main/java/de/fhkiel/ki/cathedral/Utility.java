@@ -49,7 +49,7 @@ public class Utility {
     }
 
     public static int getPlacementScore(
-        Game tempGame, Placement goodPlacement, int score, Color playerColor) {
+            Game tempGame, Placement goodPlacement, int score, Color playerColor) {
 
         tempGame.takeTurn(goodPlacement);
         int currentScore = tempGame.getPlayerScore(tempGame.getCurrentPlayer());
@@ -59,7 +59,7 @@ public class Utility {
             return 0;
         }
 
-        var goodPlacements = getGoodPlacements(tempGame, playerColor);
+        var goodPlacements = getAllPossiblePlacement(tempGame, playerColor, getFreeFields(tempGame));
 
         if (goodPlacements.size() == 0) {
             tempGame.undoLastTurn();
@@ -85,7 +85,7 @@ public class Utility {
     }
 
     public static Placement getBestPlacement(
-        Game tempGame, List<Placement> goodPlacements, Color playerColor) {
+            Game tempGame, List<Placement> goodPlacements, Color playerColor) {
 
         int score = 500;
         Placement bestPlacement = null;
@@ -103,6 +103,17 @@ public class Utility {
         }
 
         return bestPlacement;
+    }
+
+    public static List<Placement> getAllPossiblePlacement(Game tempGame, Color playerColor, List<Position> freeFields) {
+        List<Placement> goodPlacements = new ArrayList<Placement>();
+        for (Building building : tempGame.getPlacableBuildings(playerColor)) {
+
+            for (Placement placement : Utility.getPossiblePlacements(freeFields, building, tempGame)) {
+                goodPlacements.add(placement);
+            }
+        }
+        return goodPlacements;
     }
 
     public static List<Placement> getGoodPlacements(Game tempGame, Color playerColor) {
