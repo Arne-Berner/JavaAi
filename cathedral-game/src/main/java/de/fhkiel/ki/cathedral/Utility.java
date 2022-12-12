@@ -122,7 +122,7 @@ public class Utility {
 
         List<Building> buildings = Utility.getSortedBuildingsForColor(tempGame, playerColor);
         Color[][] field = tempGame.getBoard().getField();
-        List<Position> ownedFields = Utility.getOwnedFields(tempGame);
+        List<Position> ownedFields = Utility.getOwnedFields(tempGame, playerColor);
         List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
 
         List<Placement> goodPlacements = new ArrayList<Placement>();
