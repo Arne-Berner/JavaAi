@@ -28,24 +28,24 @@ public class Utility {
         return freeFieldPositions;
     }
 
-    public static List<Position> getOwnedFields(Game game) {
-        List<Position> freeFieldPositions = new ArrayList<Position>();
+    public static List<Position> getOwnedFields(Game game, Color ownedColor) {
+        List<Position> ownedFieldPositions = new ArrayList<Position>();
         Color[][] fields = game.getBoard().getField();
-        Color ownedColor = Color.White_Owned;
-        if (game.getCurrentPlayer() == Color.Black) {
+        if (ownedColor == Color.Black) {
             ownedColor = Color.Black_Owned;
-
+        } else {
+            ownedColor = Color.White_Owned;
         }
 
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 10; y++) {
                 if (fields[y][x] == ownedColor) {
-                    freeFieldPositions.add(new Position(x, y));
+                    ownedFieldPositions.add(new Position(x, y));
                 }
             }
         }
 
-        return freeFieldPositions;
+        return ownedFieldPositions;
     }
 
     public static int getPlacementScore(
@@ -59,7 +59,7 @@ public class Utility {
             return 0;
         }
 
-        var goodPlacements = getAllPossiblePlacement(tempGame, playerColor, getFreeFields(tempGame));
+        var goodPlacements = getAllPossiblePlacement(tempGame, playerColor, getOwnedFields(tempGame, playerColor));
 
         if (goodPlacements.size() == 0) {
             tempGame.undoLastTurn();

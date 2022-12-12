@@ -97,7 +97,7 @@ public class AgentA implements Agent {
 
             tempGame.ignoreRules(true);
 
-            List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
+            List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, Utility.getOwnedFields(tempGame, playerColor));
             // List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame,
             // playerColor);
 
