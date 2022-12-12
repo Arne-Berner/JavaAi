@@ -73,6 +73,9 @@ public class AgentA implements Agent {
             boolean canTakeBuilding = false;
             int bestScore = 0;
             Placement bestPlacement = null;
+
+            List<Placement> connectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
+
             for (Placement connectingPlacement : connectingPlacements) {
                 tempGame.takeTurn(connectingPlacement);
 
@@ -86,43 +89,36 @@ public class AgentA implements Agent {
                     currentScore = Utility.getLastTurnScore(tempGame);
                 }
 
+                int secondScore = 0;
+
+                tempGame.ignoreRules(true);
                 if (!canTakeBuilding) {
+                    List<Placement> secondConnectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
+
+                    for (Placement secondConnectingPlacement : secondConnectingPlacements) {
+                        tempGame.takeTurn(secondConnectingPlacement);
+                        int currentSecondScore = Utility.getLastTurnScore(tempGame);
+
+                        if (currentSecondScore > secondScore) {
+                            secondScore = currentSecondScore;
+                        }
+                        tempGame.undoLastTurn();
+                    }
+
                     // forloop mit besseren placementscore
                     // add to currentscore this new score
 
                 }
 
-                if (currentScore > bestScore) {
+                if (currentScore + secondScore > bestScore) {
                     bestScore = currentScore;
                     bestPlacement = connectingPlacement;
                 }
                 tempGame.undoLastTurn();
             }
+                tempGame.ignoreRules(false);
 
-            // fuer alle moeglichen Zuege an ein angrenzendes Feld
-                // setze einen Zug an ein angrenzendes Feld (nur eine ueberschneidung)
-                // evaluiere den Zug
-                // wenn ein Stein geklaut werden kann, gehe nicht in die naechste schleife
-                // fuer alle neuen moeglichen Zuege an ein angrenzendes Feld
-                    // setze einen Zug an ein angrenzendes Feld
-                    // evaluiere den Zug
 
-            // random placement
-            // if (possiblePlacements.isEmpty()) {
-            // for (Building building : game.getPlacableBuildings()) {
-            // for (int y = 0; y < 10; ++y) {
-            // for (int x = 0; x < 10; ++x) {
-            // for (Direction direction : building.getTurnable().getPossibleDirections()) {
-            // Placement possiblePlacement = new Placement(x, y, direction, building);
-            // if (tempGame.takeTurn(possiblePlacement, true)) {
-            // possiblePlacements.add(possiblePlacement);
-            // tempGame.undoLastTurn();
-            // }
-            // }
-            // }
-            // }
-            // }
-            // }
 
             if (bestPlacement == null) {
                 return Optional.empty();
