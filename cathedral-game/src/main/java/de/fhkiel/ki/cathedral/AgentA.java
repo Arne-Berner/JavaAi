@@ -84,22 +84,11 @@ public class AgentA implements Agent {
             }
         } else {
             // fillphase
-            // Probleme: es könnte sein, dass ein stein nicht so viele überschneidungen hat,
-            // und trotzdem ein sehr gute rzug ist
-            // zum beispiel wenn ein stein mit vielen überschneidungen 5 weitere Züge
-            // verhindert (sehr unwahrscheinlich)
-
-            // metriken
-            // Punkte minimieren
-            // welche steine koennen nicht mehr gelegt werden
-            // felderanzahl als punkte minimum nehmen
             Color playerColor = tempGame.getCurrentPlayer();
 
             tempGame.ignoreRules(true);
 
             List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, Utility.getOwnedFields(tempGame, playerColor));
-            // List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame,
-            // playerColor);
 
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
