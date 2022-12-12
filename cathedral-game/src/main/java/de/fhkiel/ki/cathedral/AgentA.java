@@ -93,16 +93,20 @@ public class AgentA implements Agent {
             // fillphase
             Color playerColor = tempGame.getCurrentPlayer();
 
+            //makes the recursive function possible
             tempGame.ignoreRules(true);
 
+            //gets all placements, since it is fast enough (we used getGoodPlacements before)
             List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
                     Utility.getOwnedFields(tempGame, playerColor));
 
+            //if there is no placement to be made, return an empty turn
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
                 return Optional.empty();
             }
 
+            //entry point for the recursive function
             Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
             tempGame.ignoreRules(false);
             return Optional.of(bestPlacement);

@@ -48,17 +48,24 @@ public class Utility {
         return ownedFieldPositions;
     }
 
+    /**
+     * Gets the best score you can get for this placement, taking into account the
+     * following placements
+     */
     public static int getPlacementScore(
             Game tempGame, Placement goodPlacement, int score, Color playerColor) {
 
+        // takes the first turn, to check if we reached zero or have moves left
         tempGame.takeTurn(goodPlacement);
         int currentScore = tempGame.getPlayerScore(playerColor);
 
+        //check for zero
         if (currentScore == 0) {
             tempGame.undoLastTurn();
             return 0;
         }
 
+        //any moves left?
         var goodPlacements = getAllPossiblePlacement(tempGame, playerColor, getOwnedFields(tempGame, playerColor));
 
         if (goodPlacements.size() == 0) {
@@ -66,10 +73,12 @@ public class Utility {
             return currentScore;
         }
 
+        //if there are moves left, call this function recursively for all the placements that are possible now
         for (Placement placement : goodPlacements) {
 
             currentScore = getPlacementScore(tempGame, placement, score, playerColor);
 
+            //same as bestPlacement
             if (score > currentScore) {
                 score = currentScore;
             }
@@ -84,19 +93,27 @@ public class Utility {
         return score;
     }
 
+    /**
+     * gets the best possible Placement in the fillphase
+     */
     public static Placement getBestPlacement(
             Game tempGame, List<Placement> goodPlacements, Color playerColor) {
 
+        // random score that is high
         int score = 500;
         Placement bestPlacement = null;
         for (Placement goodPlacement : goodPlacements) {
+            // actual recursive function
             int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor);
 
+            // if points are better than the last building (or 500) then set this placement
+            // as bestplacement
             if (score > currentScore) {
                 bestPlacement = goodPlacement;
                 score = currentScore;
             }
 
+            // if score is 0, there is nothing more to be done, you win, exit please.
             if (score == 0) {
                 return bestPlacement;
             }
