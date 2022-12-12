@@ -95,12 +95,28 @@ public class AgentA implements Agent {
             // welche steine koennen nicht mehr gelegt werden
             // felderanzahl als punkte minimum nehmen
 
-            // 1. Felder der eigenen Farbe finden
-            Color[][] field = tempGame.getBoard().getField();
-            List<Position> ownedFields = Utility.getOwnedFields(tempGame);
-            List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
-            List<Placement> goodPlacements = Utility.getGoodPlacements(
-                    buildings, ownedFields, playerPlaced, tempGame);
+
+            //rekursiv: endbedingung - punkte 0 || goodplacements leer
+            // geht es ueberhaupt, weil der naechste vom vorigen zug abhaengig ist?
+
+            // nicht rekursiv:
+            // bestPlacement
+            // while(punkte > 0 || goodPlacementsCount > 0)
+            
+            // in normalen worten: ich moechte so lange goodplacement aufrufen (mit setzen)
+            // bis ich keine goodPlacements mehr für den nächsten zug habe, oder der score 0 ist
+
+            
+
+            List<Placement> goodPlacements = Utility.getGoodPlacements(tempGame);
+
+            if(goodPlacements.size() == 0)
+            {
+                return Optional.empty();
+            }
+
+            Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements);
+            return Optional.of(bestPlacement);
 
             // für jedes placement in goodplacements eine neue liste an good placements
             // machen mit freien Feldern

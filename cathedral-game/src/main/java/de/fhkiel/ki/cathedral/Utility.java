@@ -3,6 +3,8 @@ package de.fhkiel.ki.cathedral;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.io.TempDir;
+
 import de.fhkiel.ki.cathedral.game.Building;
 import de.fhkiel.ki.cathedral.game.Color;
 import de.fhkiel.ki.cathedral.game.Direction;
@@ -46,10 +48,68 @@ public class Utility {
         return freeFieldPositions;
     }
 
-    public static List<Placement> getGoodPlacements(List<Building> buildings,
-            List<Position> ownedFields,
-            List<Position> playerPlaced,
-            Game tempGame) {
+    public static int getPlacementScore (Game tempGame, Placement goodPlacement, int score){
+        tempGame.takeTurn(goodPlacement);
+        int currentScore = tempGame.getPlayerScore(tempGame.getCurrentPlayer());
+
+        if(currentScore == 0){
+            tempGame.undoLastTurn();
+            return 0;
+        }
+
+        var goodPlacements = getGoodPlacements(tempGame);
+
+        if(goodPlacements.size() == 0){
+            tempGame.undoLastTurn();
+            return currentScore;
+        }
+
+        for (Placement placement : goodPlacements) {
+
+            currentScore = getPlacementScore(tempGame, placement, score);
+
+            if(score > currentScore){
+                score = currentScore;
+            }
+
+            if(score == 0){
+                tempGame.undoLastTurn();
+                return score;
+            }
+        }
+
+        tempGame.undoLastTurn();
+        return score;
+    }
+
+    public static Placement getBestPlacement(Game tempGame, List<Placement> goodPlacements) {
+
+        int score = 500;
+        Placement bestPlacement = null;
+        for (Placement goodPlacement : goodPlacements) {
+            int currentScore = getPlacementScore(tempGame, goodPlacement, score);
+
+            if(score > currentScore){
+                bestPlacement = goodPlacement;
+                score = currentScore;
+            }
+
+            if(score == 0){
+                return bestPlacement;
+            }
+        }
+
+        return bestPlacement;
+    }
+
+    public static List<Placement> getGoodPlacements(Game tempGame) {
+        // vielleicht brauche ich eine funktion "get player buildings" anstatt getSortedBuildings
+
+        List<Building> buildings = Utility.getSortedBuildings(tempGame);
+        Color[][] field = tempGame.getBoard().getField();
+        List<Position> ownedFields = Utility.getOwnedFields(tempGame);
+        List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
+
         List<Placement> goodPlacements = new ArrayList<Placement>();
         int finalscore = 0;
 
