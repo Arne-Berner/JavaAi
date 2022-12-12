@@ -29,6 +29,7 @@ public class AgentA implements Agent {
 
     private PrintStream console;
     private Position lastPosition = new Position(3, 3);
+    private boolean firstTurn = true;
 
     @Override
     public String name() {
@@ -55,8 +56,14 @@ public class AgentA implements Agent {
         // noch keine Füllphase
         if (!isFillPhase) {
             List<Placement> possiblePlacements = new ArrayList<>();
-            boolean placed = false;
-            firstTurn(tempGame, possiblePlacements);
+            if (firstTurn) {
+                possiblePlacements = firstTurn(tempGame);
+                if (possiblePlacements.size() > 0) {
+                    firstTurn = false;
+                    return Optional
+                            .of(possiblePlacements.get(0));
+                }
+            }
 
             // random placement
             if (possiblePlacements.isEmpty()) {
@@ -88,7 +95,8 @@ public class AgentA implements Agent {
 
             tempGame.ignoreRules(true);
 
-            List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, Utility.getOwnedFields(tempGame, playerColor));
+            List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
+                    Utility.getOwnedFields(tempGame, playerColor));
 
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
@@ -310,8 +318,9 @@ public class AgentA implements Agent {
         return connectingPlacements;
     }
 
-    private void firstTurn(Game tempGame, List<Placement> possiblePlacements) {
+    private List<Placement> firstTurn(Game tempGame) {
         // Erster zug!
+        List<Placement> possiblePlacements = new ArrayList<Placement>();
         for (Building neuner : tempGame.getPlacableBuildings()) {
             if (neuner.getId() == 9) {
                 Position cathedralPosition = tempGame.getBoard().getPlacedBuildings().get(0).position();
@@ -374,5 +383,6 @@ public class AgentA implements Agent {
             }
         }
 
+        return possiblePlacements;
     }
 }
