@@ -48,6 +48,40 @@ public class Utility {
         return ownedFieldPositions;
     }
 
+    public static List<Placement> getConnectingPlacements(Game tempGame, Color playerColor){
+        List<Position> freeFields = Utility.getFreeFields(tempGame);
+            Color[][] field = tempGame.getBoard().getField();
+            List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
+            List<Placement> possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
+            List<Placement> connectingPlacements = new ArrayList<Placement>();
+
+            for (Placement possiblePlacement : possiblePlacements) {
+
+                int placementScore = 0;
+                Direction direction = possiblePlacement.direction();
+                List<Position> corners = possiblePlacement.building().corners(direction);
+
+                for (Position corner : corners) {
+                    Position placementPosition = new Position(possiblePlacement.position().x(),
+                            possiblePlacement.position().y());
+                    if (placementPosition.isViable()) {
+
+                        Position cornerPosition = placementPosition.plus(corner);
+
+                        if (playerPlaced.contains(cornerPosition)) {
+                            placementScore++;
+                        }
+                    }
+                }
+
+                if (placementScore == 1) {
+                    connectingPlacements.add(possiblePlacement);
+                }
+            }
+
+            return connectingPlacements;
+    }
+
     /**
      * Gets the best score you can get for this placement, taking into account the
      * following placements

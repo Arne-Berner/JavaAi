@@ -49,7 +49,6 @@ public class AgentA implements Agent {
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
         Game tempGame = game.copy();
-        List<Position> freeFields = Utility.getFreeFields(tempGame);
         boolean isFillPhase = Utility.isFillphase(tempGame);
         Color playerColor = tempGame.getCurrentPlayer();
 
@@ -70,34 +69,6 @@ public class AgentA implements Agent {
 
             // zweiter zug die Wand beruehren lassen?
             // erstmal Steine moeglichst gut klauen
-            Color[][] field = tempGame.getBoard().getField();
-            List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
-            possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
-            List<Placement> connectingPlacements = new ArrayList<Placement>();
-
-            for (Placement possiblePlacement : possiblePlacements) {
-
-                int placementScore = 0;
-                Direction direction = possiblePlacement.direction();
-                List<Position> corners = possiblePlacement.building().corners(direction);
-
-                for (Position corner : corners) {
-                    Position placementPosition = new Position(possiblePlacement.position().x(),
-                            possiblePlacement.position().y());
-                    if (placementPosition.isViable()) {
-
-                        Position cornerPosition = placementPosition.plus(corner);
-
-                        if (playerPlaced.contains(cornerPosition)) {
-                            placementScore++;
-                        }
-                    }
-                }
-
-                if (placementScore == 1) {
-                    connectingPlacements.add(possiblePlacement);
-                }
-            }
 
             boolean canTakeBuilding = false;
             int bestScore = 0;
