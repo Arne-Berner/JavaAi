@@ -152,7 +152,6 @@ public class Utility {
                 int placementScore = 0;
 
                 for (Position corner : building.corners(possiblePlacement.direction())) {
-                    // dummy
                     Position placementPosition = possiblePlacement.position();
                     Position actualPosition = placementPosition.plus(corner);
 
@@ -166,12 +165,10 @@ public class Utility {
 
                 }
                 if (finalscore == placementScore) {
-                    // dummy
                     goodPlacements.add(possiblePlacement);
                 }
 
                 if (finalscore < placementScore) {
-                    // dummy
                     goodPlacements = new ArrayList<Placement>();
                     goodPlacements.add(possiblePlacement);
                     finalscore = placementScore;
@@ -243,8 +240,28 @@ public class Utility {
         return whiteFieldPositions;
     }
 
+
+    
     /**
      * gets the evaluated Score for the last Turn of current Player
+     * higher is better
+     * 
+     * @return Score as int
+     */
+    public static int enemyScoreDiff(Game game){
+        Game tempGame = game.copy();
+            Color enemyPlayer = tempGame.getEnemyPlayer();
+            int enemyScore = tempGame.getPlayerScore(enemyPlayer);
+            tempGame.undoLastTurn();
+            int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
+            int enemyScoreDiff = (enemyScore - oldEnemyScore);
+
+            return enemyScoreDiff;
+    }
+
+    /**
+     * gets the evaluated Score for the last Turn of current Player
+     * higher is better
      * 
      * @return Score as int
      */
@@ -258,8 +275,6 @@ public class Utility {
             Color currentPlayer = tempGame.getCurrentPlayer();
             Color enemyPlayer = tempGame.getEnemyPlayer();
 
-            // nach dem letzten zug
-            tempGame.undoLastTurn();
             List<Position> freeFields = Utility.getFreeFields(tempGame);
             int turns = freeFields.size();
             int ownScore = tempGame.getPlayerScore(currentPlayer);

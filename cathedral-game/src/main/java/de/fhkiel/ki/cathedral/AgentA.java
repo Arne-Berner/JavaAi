@@ -52,12 +52,16 @@ public class AgentA implements Agent {
         List<Position> freeFields = Utility.getFreeFields(tempGame);
         boolean isFillPhase = Utility.isFillphase(tempGame);
         List<Building> buildings = Utility.getSortedBuildings(game);
+        Color playerColor = tempGame.getCurrentPlayer();
 
         // noch keine Füllphase
         if (!isFillPhase) {
             List<Placement> possiblePlacements = new ArrayList<>();
+
+            //erster Zug
             if (firstTurn) {
                 possiblePlacements = firstTurn(tempGame);
+
                 if (possiblePlacements.size() > 0) {
                     firstTurn = false;
                     return Optional
@@ -65,22 +69,87 @@ public class AgentA implements Agent {
                 }
             }
 
-            // random placement
-            if (possiblePlacements.isEmpty()) {
-                for (Building building : game.getPlacableBuildings()) {
-                    for (int y = 0; y < 10; ++y) {
-                        for (int x = 0; x < 10; ++x) {
-                            for (Direction direction : building.getTurnable().getPossibleDirections()) {
-                                Placement possiblePlacement = new Placement(x, y, direction, building);
-                                if (tempGame.takeTurn(possiblePlacement, true)) {
-                                    possiblePlacements.add(possiblePlacement);
-                                    tempGame.undoLastTurn();
-                                }
-                            }
-                        }
+            // zweiter zug die Wand beruehren lassen?
+            // erstmal Steine moeglichst gut klauen
+            Color[][] field = tempGame.getBoard().getField();
+            List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
+            possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
+            List<Placement> connectingPlacements = new ArrayList<Placement>();
+
+            for(Placement possiblePlacement : possiblePlacements){
+
+                int placementScore = 0;
+
+                for (Position corner : possiblePlacement.building().corners(possiblePlacement.direction())) {
+                    Position placementPosition = possiblePlacement.position();
+                    Position actualPosition = placementPosition.plus(corner);
+
+                    if (playerPlaced.contains(actualPosition)) {
+                        placementScore++;
                     }
+
+                }
+
+                if(placementScore == 1){
+                    connectingPlacements.add(possiblePlacement);
                 }
             }
+
+            boolean canTakeBuilding = false;
+            int bestScore = 500;
+            Placement bestPlacement = null;
+            for(Placement connectingPlacement : connectingPlacements){
+                tempGame.takeTurn(connectingPlacement);
+                
+                int currentScore = 0;
+                //first building that can steal, resets everything
+                if(Utility.enemyScoreDiff(tempGame) > 0 && canTakeBuilding == false){
+                    canTakeBuilding = true;
+                    bestScore = Utility.getLastTurnScore(tempGame);
+                    bestPlacement = connectingPlacement;
+                } else {
+                    currentScore = Utility.getLastTurnScore(tempGame);
+                }
+
+
+                if(!canTakeBuilding){
+                    //forloop mit besseren placementscore
+                    // add to currentscore this new score
+
+                }
+
+                if(currentScore > bestScore){
+                    bestScore = currentScore;
+                    bestPlacement = connectingPlacement;
+                }
+            }
+
+            // fuer alle moeglichen Zuege an ein angrenzendes Feld
+                // setze einen Zug an ein angrenzendes Feld (nur eine ueberschneidung)
+                // evaluiere den Zug
+                // wenn ein Stein geklaut werden kann, gehe nicht in die naechste schleife
+                // bool?
+                // fuer alle neuen moeglichen Zuege an ein angrenzendes Feld
+                    // setze einen Zug an ein angrenzendes Feld
+                    // evaluiere den Zug
+
+
+            // random placement
+            // if (possiblePlacements.isEmpty()) {
+            //     for (Building building : game.getPlacableBuildings()) {
+            //         for (int y = 0; y < 10; ++y) {
+            //             for (int x = 0; x < 10; ++x) {
+            //                 for (Direction direction : building.getTurnable().getPossibleDirections()) {
+            //                     Placement possiblePlacement = new Placement(x, y, direction, building);
+            //                     if (tempGame.takeTurn(possiblePlacement, true)) {
+            //                         possiblePlacements.add(possiblePlacement);
+            //                         tempGame.undoLastTurn();
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
             if (possiblePlacements.isEmpty()) {
                 return Optional.empty();
@@ -91,7 +160,6 @@ public class AgentA implements Agent {
             }
         } else {
             // fillphase
-            Color playerColor = tempGame.getCurrentPlayer();
 
             //makes the recursive function possible
             tempGame.ignoreRules(true);

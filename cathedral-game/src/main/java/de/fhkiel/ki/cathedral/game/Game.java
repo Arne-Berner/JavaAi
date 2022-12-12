@@ -177,7 +177,7 @@ public class Game {
   }
 
   /**
-   * Gets the current player {@link Color}.
+   * Gets the enemy player {@link Color}.
    * Can be the {@link Color#Blue}, {@link Color#Black} or {@link Color#White}
    *
    * @return the current player {@link Color}
