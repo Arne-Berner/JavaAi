@@ -52,7 +52,7 @@ public class Utility {
             Game tempGame, Placement goodPlacement, int score, Color playerColor) {
 
         tempGame.takeTurn(goodPlacement);
-        int currentScore = tempGame.getPlayerScore(tempGame.getCurrentPlayer());
+        int currentScore = tempGame.getPlayerScore(playerColor);
 
         if (currentScore == 0) {
             tempGame.undoLastTurn();
