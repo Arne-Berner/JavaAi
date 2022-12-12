@@ -30,7 +30,7 @@ public class Utility {
         List<Position> freeFieldPositions = new ArrayList<Position>();
         Color[][] fields = game.getBoard().getField();
         Color ownedColor = Color.White_Owned;
-        if(game.getCurrentPlayer() == Color.Black){
+        if (game.getCurrentPlayer() == Color.Black) {
             ownedColor = Color.Black_Owned;
 
         }
@@ -46,17 +46,80 @@ public class Utility {
         return freeFieldPositions;
     }
 
-    public static List<Position> placedByPlayer(Color[][] field, Color playerColor){
-            List<Position> playerPlaced = new ArrayList<Position>();
-            for (int x = 0; x < 10; x++) {
-                for (int y = 0; y < 10; y++) {
-                    if (field[x][y] == playerColor) {
-                        playerPlaced.add(new Position(x, y));
+    public static List<Placement> getGoodPlacements(List<Building> buildings,
+            List<Position> ownedFields,
+            List<Position> playerPlaced,
+            Game tempGame) {
+        List<Placement> goodPlacements = new ArrayList<Placement>();
+        int finalscore = 0;
+
+        for (Building building : buildings) {
+            List<Placement> possiblePlacements = Utility.getPossiblePlacements(ownedFields, building, tempGame);
+
+            for (Placement possiblePlacement : possiblePlacements) {
+                int placementScore = 0;
+
+                for (Position corner : building.corners(possiblePlacement.direction())) {
+                    // dummy
+                    Position placementPosition = possiblePlacement.position();
+                    Position actualPosition = placementPosition.plus(corner);
+
+                    if (actualPosition.y() < 0 || actualPosition.y() > 9) {
+                        placementScore++;
+                    } else if (actualPosition.x() < 0 || actualPosition.x() > 9) {
+                        placementScore++;
+                    } else if (playerPlaced.contains(actualPosition)) {
+                        placementScore++;
                     }
+
+                }
+                if (finalscore == placementScore) {
+                    // dummy
+                    goodPlacements.add(possiblePlacement);
+                }
+
+                if (finalscore < placementScore) {
+                    // dummy
+                    goodPlacements = new ArrayList<Placement>();
+                    goodPlacements.add(possiblePlacement);
+                    finalscore = placementScore;
                 }
             }
-            return playerPlaced;
         }
+
+        return goodPlacements;
+    }
+
+    public static List<Placement> getPossiblePlacements(List<Position> ownedFields, Building building, Game tempGame) {
+        List<Placement> possiblePositions = new ArrayList<Placement>();
+
+        if (building.score() <= ownedFields.size()) {
+            for (var direction : Direction.values()) {
+                for (Position ownedField : ownedFields) {
+                    Placement possiblePlacement = new Placement(ownedField, direction, building);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePositions.add(possiblePlacement);
+                        tempGame.undoLastTurn();
+                    }
+
+                }
+            }
+        }
+
+        return possiblePositions;
+    }
+
+    public static List<Position> placedByPlayer(Color[][] field, Color playerColor) {
+        List<Position> playerPlaced = new ArrayList<Position>();
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++) {
+                if (field[x][y] == playerColor) {
+                    playerPlaced.add(new Position(x, y));
+                }
+            }
+        }
+        return playerPlaced;
+    }
 
     public static List<Position> getBlackFields(Game game) {
         List<Position> blackFieldPositions = new ArrayList<Position>();

@@ -79,16 +79,17 @@ public class AgentA implements Agent {
                 return Optional.empty();
             } else {
                 return Optional
-                    .of(new ArrayList<>(possiblePlacements)
-                            .get(new Random().nextInt(possiblePlacements.size())));
+                        .of(new ArrayList<>(possiblePlacements)
+                                .get(new Random().nextInt(possiblePlacements.size())));
             }
         } else {
             // fillphase
 
-            //Aufgaben: Lokale suche mit den gewählten steinen ausbauen
-            //Probleme: es könnte sein, dass ein stein nicht so viele überschneidungen hat, und trotzdem ein sehr gute rzug ist
-            // zum beispiel wenn ein stein mit vielen überschneidungen 5 weitere Züge verhindert (sehr unwahrscheinlich)
-
+            // Aufgaben: Lokale suche mit den gewählten steinen ausbauen
+            // Probleme: es könnte sein, dass ein stein nicht so viele überschneidungen hat,
+            // und trotzdem ein sehr gute rzug ist
+            // zum beispiel wenn ein stein mit vielen überschneidungen 5 weitere Züge
+            // verhindert (sehr unwahrscheinlich)
 
             // Punkte minimieren
             // welche steine koennen nicht mehr gelegt werden
@@ -98,7 +99,6 @@ public class AgentA implements Agent {
             Color[][] field = tempGame.getBoard().getField();
             List<Position> ownedFields = Utility.getOwnedFields(tempGame);
             List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
-            
 
             // für jedes placement in goodplacements eine neue liste an good placements
             // machen mit freien Feldern
@@ -106,53 +106,6 @@ public class AgentA implements Agent {
             // gebaeude gesetzt werden kann.
             // oder bis alle gebäude gesetzt sind.
 
-            int finalscore = 0;
-            List<Placement> goodPlacements = new ArrayList<Placement>();
-            for (Building building : buildings) {
-                List<Placement> possiblePositions = new ArrayList<>();
-                if (building.score() <= ownedFields.size()) {
-                    for (var direction : Direction.values()) {
-                        for (Position ownedField : ownedFields) {
-                            Placement possiblePlacement = new Placement(ownedField, direction, building);
-                            if (tempGame.takeTurn(possiblePlacement, true)) {
-                                possiblePositions.add(possiblePlacement);
-                                tempGame.undoLastTurn();
-                            }
-
-                        }
-                    }
-                }
-
-                for (Placement possiblePosition : possiblePositions) {
-                int placementScore = 0;
-
-                    for (Position corner : building.corners(possiblePosition.direction())) {
-                        // dummy
-                        Position placementPosition = possiblePosition.position();
-                        Position actualPosition = placementPosition.plus(corner);
-                        if (actualPosition.y() < 0 || actualPosition.y() > 9) {
-                            placementScore++;
-                        } else if (actualPosition.x() < 0 || actualPosition.x() > 9) {
-                            placementScore++;
-                        } else if (playerPlaced.contains(actualPosition)) {
-                            placementScore++;
-                        }
-
-                    }
-                    if (finalscore == placementScore) {
-                        // dummy
-                        goodPlacements.add(possiblePosition);
-                    }
-
-                    if (finalscore < placementScore) {
-                        // dummy
-                        goodPlacements = new ArrayList<Placement>();
-                        goodPlacements.add(possiblePosition);
-                        finalscore = placementScore;
-                    }
-                }
-
-            }
 
             console.println(goodPlacements.get(0).form());
             console.println(goodPlacements.get(0).building().corners(goodPlacements.get(0).direction()));
