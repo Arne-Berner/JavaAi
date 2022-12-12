@@ -99,13 +99,14 @@ public class AgentA implements Agent {
             Color[][] field = tempGame.getBoard().getField();
             List<Position> ownedFields = Utility.getOwnedFields(tempGame);
             List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
+            List<Placement> goodPlacements = Utility.getGoodPlacements(
+                    buildings, ownedFields, playerPlaced, tempGame);
 
             // für jedes placement in goodplacements eine neue liste an good placements
             // machen mit freien Feldern
             // solange wiederholen, bis die neue liste an goodplacements leer ist, weil kein
             // gebaeude gesetzt werden kann.
             // oder bis alle gebäude gesetzt sind.
-
 
             console.println(goodPlacements.get(0).form());
             console.println(goodPlacements.get(0).building().corners(goodPlacements.get(0).direction()));
