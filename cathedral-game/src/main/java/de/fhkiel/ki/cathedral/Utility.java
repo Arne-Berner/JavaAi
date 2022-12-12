@@ -45,6 +45,19 @@ public class Utility {
 
         return freeFieldPositions;
     }
+
+    public static List<Position> placedByPlayer(Color[][] field, Color playerColor){
+            List<Position> playerPlaced = new ArrayList<Position>();
+            for (int x = 0; x < 10; x++) {
+                for (int y = 0; y < 10; y++) {
+                    if (field[x][y] == playerColor) {
+                        playerPlaced.add(new Position(x, y));
+                    }
+                }
+            }
+            return playerPlaced;
+        }
+
     public static List<Position> getBlackFields(Game game) {
         List<Position> blackFieldPositions = new ArrayList<Position>();
         Color[][] fields = game.getBoard().getField();

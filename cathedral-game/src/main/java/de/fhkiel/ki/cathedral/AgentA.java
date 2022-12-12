@@ -97,15 +97,7 @@ public class AgentA implements Agent {
             // 1. Felder der eigenen Farbe finden
             Color[][] field = tempGame.getBoard().getField();
             List<Position> ownedFields = Utility.getOwnedFields(tempGame);
-            List<Position> playerPlaced = new ArrayList<Position>();
-            for (int x = 0; x < 10; x++) {
-                for (int y = 0; y < 10; y++) {
-                    if (field[x][y] == tempGame.getCurrentPlayer()) {
-                        playerPlaced.add(new Position(x, y));
-                    }
-                }
-            }
-
+            List<Position> playerPlaced = Utility.placedByPlayer(field, tempGame.getCurrentPlayer());
             
 
             // für jedes placement in goodplacements eine neue liste an good placements
