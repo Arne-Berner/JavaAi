@@ -220,6 +220,28 @@ public class Utility {
         return bestPlacement;
     }
 
+    public static Placement fillEmptyFields(Game tempGame, Color playerColor) {
+        List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
+                Utility.getFreeFields(tempGame));
+
+        Placement bestPlacement;
+
+        int emptyPlacScore = 0;
+        for (Placement goodPlacement : goodPlacements) {
+            tempGame.takeTurn(goodPlacement);
+            int currPlacScore = Utility.getLastTurnScore(tempGame);
+
+            if (currPlacScore > emptyPlacScore) {
+                emptyPlacScore = currPlacScore;
+                bestPlacement = goodPlacement;
+            }
+
+            tempGame.undoLastTurn();
+        }
+
+        return bestPlacement;
+    }
+
     public static List<Placement> getHighestPossiblePlacement(Game tempGame, Color playerColor,
             List<Position> freeFields) {
         List<Placement> goodPlacements = new ArrayList<Placement>();
@@ -227,7 +249,7 @@ public class Utility {
         for (Building building : tempGame.getPlacableBuildings(playerColor)) {
             if (building.score() > buildingScore) {
                 buildingScore = building.score();
-                goodPlacements.removeAll(goodPlacements); 
+                goodPlacements.removeAll(goodPlacements);
             }
 
             if (building.score() >= buildingScore) {
@@ -413,7 +435,7 @@ public class Utility {
             int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
 
             turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
-       }
+        }
 
         return turnScore;
     }

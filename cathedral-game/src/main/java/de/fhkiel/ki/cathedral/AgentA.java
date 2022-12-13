@@ -80,8 +80,10 @@ public class AgentA implements Agent {
             int bestScore = 0;
             Placement bestPlacement = null;
 
+            // get all placements
             List<Placement> connectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
 
+            // use all placements
             for (Placement connectingPlacement : connectingPlacements) {
                 tempGame.takeTurn(connectingPlacement);
 
@@ -94,6 +96,8 @@ public class AgentA implements Agent {
                 } else {
                     currentScore = Utility.getLastTurnScore(tempGame);
                 }
+
+                // if is connecting placement
 
                 int secondScore = 0;
 
@@ -132,15 +136,9 @@ public class AgentA implements Agent {
             tempGame.ignoreRules(false);
 
             if (bestPlacement == null) {
-                // hier nochmal den füllalgo für emptyfields machen
-                List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
-                        Utility.getFreeFields(tempGame));
+                bestPlacement = Utility.fillEmptyFields(tempGame, playerColor);
 
-                Placement bestEmptyPlacement = null;
-
-                // entry point for the recursive function
-                tempGame.ignoreRules(false);
-                return Optional.of(bestEmptyPlacement);
+                return Optional.of(bestPlacement);
             } else {
                 return Optional
                         .of(bestPlacement);
@@ -167,6 +165,85 @@ public class AgentA implements Agent {
             tempGame.ignoreRules(false);
             return Optional.of(bestPlacement);
         }
+    }
+
+    @Override
+    public String evaluateLastTurn(Game game) {
+        Utility.getLastTurnScore(game);
+        return getLastTurnScoreAsString(game);
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    private List<Placement> firstTurn(Game tempGame) {
+        // Erster zug!
+        List<Placement> possiblePlacements = new ArrayList<Placement>();
+        for (Building neuner : tempGame.getPlacableBuildings()) {
+            if (neuner.getId() == 9) {
+                Position cathedralPosition = tempGame.getBoard().getPlacedBuildings().get(0).position();
+                if (cathedralPosition.x() < 5) {
+                    // nur rechte positionen setzen
+                    var possiblePosition = new Position(7, 4);
+                    Placement possiblePlacement = new Placement(possiblePosition, Direction._90, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+
+                    possiblePosition = new Position(7, 5);
+                    possiblePlacement = new Placement(possiblePosition, Direction._90, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+                }
+                if (cathedralPosition.x() > 4) {
+                    // nur linke positionen setzen
+                    var possiblePosition = new Position(2, 4);
+                    Placement possiblePlacement = new Placement(possiblePosition, Direction._270, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+
+                    possiblePosition = new Position(2, 5);
+                    possiblePlacement = new Placement(possiblePosition, Direction._270, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+                }
+                if (cathedralPosition.y() < 5) {
+                    // nur untere positionen setzen
+                    var possiblePosition = new Position(4, 7);
+                    Placement possiblePlacement = new Placement(possiblePosition, Direction._180, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+
+                    possiblePosition = new Position(5, 7);
+                    possiblePlacement = new Placement(possiblePosition, Direction._180, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+                }
+                if (cathedralPosition.y() > 4) {
+                    // nur obere positionen setzen
+                    var possiblePosition = new Position(4, 2);
+                    Placement possiblePlacement = new Placement(possiblePosition, Direction._0, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+
+                    possiblePosition = new Position(5, 2);
+                    possiblePlacement = new Placement(possiblePosition, Direction._0, neuner);
+                    if (tempGame.takeTurn(possiblePlacement, true)) {
+                        possiblePlacements.add(possiblePlacement);
+                    }
+                }
+            }
+        }
+
+        return possiblePlacements;
     }
 
     /**
@@ -296,153 +373,4 @@ public class AgentA implements Agent {
         return reason;
     }
 
-    @Override
-    public String evaluateLastTurn(Game game) {
-        Utility.getLastTurnScore(game);
-        return getLastTurnScoreAsString(game);
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    private Position tryTopLeftCorner(Game tempGame, Direction direction, Building building) {
-        for (int y = 0; y < 2; y++) {
-            for (int x = 0; x < 2; x++) {
-                var position = new Position(x, y);
-                Placement possiblePlacement = new Placement(position, direction, building);
-                if (tempGame.takeTurn(possiblePlacement, true)) {
-                    return position;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Position tryBottomRightCorner(Game tempGame, Direction direction, Building building) {
-        for (int y = 9; y > 7; y--) {
-            for (int x = 9; x > 7; x--) {
-                var position = new Position(x, y);
-                Placement possiblePlacement = new Placement(position, direction, building);
-                if (tempGame.takeTurn(possiblePlacement, true)) {
-                    return position;
-                }
-            }
-        }
-        return null;
-    }
-
-    private List<Placement> getConnectingPlacement(Game tempGame, List<Building> buildings) {
-        List<Placement> connectingPlacements = new ArrayList<Placement>();
-        Direction[] directions = Direction.values();
-        for (Building building : buildings) {
-            for (int i = 0; i < 4; i++) {
-                Position topleft = tryTopLeftCorner(tempGame, directions[i], building);
-                Position bottomright = tryBottomRightCorner(tempGame, directions[i], building);
-
-                for (int x = topleft.x(); x <= bottomright.x(); x++) {
-                    connectingPlacements.add(new Placement(new Position(x, topleft.y()), directions[i], building));
-                    connectingPlacements.add(new Placement(new Position(x, bottomright.y()), directions[i], building));
-                }
-
-                for (int y = topleft.y() + 1; y < bottomright.y(); y++) {
-                    connectingPlacements.add(new Placement(new Position(topleft.x(), y), directions[i], building));
-                    connectingPlacements.add(new Placement(new Position(bottomright.x(), y), directions[i], building));
-                }
-
-            }
-        }
-
-        // speicher die relativen Punkte des Gegners: moegliche Zuege - jetzige punkte
-
-        // (vielleicht noch unsere eigenen relativen punkte mit einberechnen,
-        // dadurch werden automatisch groessere Steine genommen, wenn moeglich
-        // [vielleicht die eigenen
-        // punkte die verschwinden sogar mal ])
-        // differenz = relativeEnemyScore - newEnemyScore sollte moeglichst gross sein
-        // für jede Position in fourDirectionPositions wird der move mit der direction
-        // ausgeführt
-        // dann wird erstmal geschaut, ob sich die gegnerischen punkte diesen zug
-        // erhöhen lassen
-        // dann wird der zug gewählt der die größte differenz hat
-        // kann man nichts vom gegner entfernen
-        // wird erstmal ein Zug gesetzt der an einem anderen Stein angrenzt
-        // und ein stein der an der Wand angrenzt als nächstes
-        // diese Kombination wird wieder als Differenz ausgezählt
-        // die höchste Differenz wird als Zug wirklich gesetzt
-
-        // Es kann mit dem Füllen begonnen werden, wenn es keinen Zug gibt, der dem
-        // gegner Zugmöglichkeiten klaut.
-
-        return connectingPlacements;
-    }
-
-    private List<Placement> firstTurn(Game tempGame) {
-        // Erster zug!
-        List<Placement> possiblePlacements = new ArrayList<Placement>();
-        for (Building neuner : tempGame.getPlacableBuildings()) {
-            if (neuner.getId() == 9) {
-                Position cathedralPosition = tempGame.getBoard().getPlacedBuildings().get(0).position();
-                if (cathedralPosition.x() < 5) {
-                    // nur rechte positionen setzen
-                    var possiblePosition = new Position(7, 4);
-                    Placement possiblePlacement = new Placement(possiblePosition, Direction._90, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-
-                    possiblePosition = new Position(7, 5);
-                    possiblePlacement = new Placement(possiblePosition, Direction._90, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-                }
-                if (cathedralPosition.x() > 4) {
-                    // nur linke positionen setzen
-                    var possiblePosition = new Position(2, 4);
-                    Placement possiblePlacement = new Placement(possiblePosition, Direction._270, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-
-                    possiblePosition = new Position(2, 5);
-                    possiblePlacement = new Placement(possiblePosition, Direction._270, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-                }
-                if (cathedralPosition.y() < 5) {
-                    // nur untere positionen setzen
-                    var possiblePosition = new Position(4, 7);
-                    Placement possiblePlacement = new Placement(possiblePosition, Direction._180, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-
-                    possiblePosition = new Position(5, 7);
-                    possiblePlacement = new Placement(possiblePosition, Direction._180, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-                }
-                if (cathedralPosition.y() > 4) {
-                    // nur obere positionen setzen
-                    var possiblePosition = new Position(4, 2);
-                    Placement possiblePlacement = new Placement(possiblePosition, Direction._0, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-
-                    possiblePosition = new Position(5, 2);
-                    possiblePlacement = new Placement(possiblePosition, Direction._0, neuner);
-                    if (tempGame.takeTurn(possiblePlacement, true)) {
-                        possiblePlacements.add(possiblePlacement);
-                    }
-                }
-            }
-        }
-
-        return possiblePlacements;
-    }
 }
