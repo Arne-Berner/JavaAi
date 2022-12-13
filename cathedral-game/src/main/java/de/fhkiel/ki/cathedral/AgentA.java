@@ -29,8 +29,8 @@ public class AgentA implements Agent {
     }
 
     private PrintStream console;
-    private Position lastPosition = new Position(3, 3);
     private boolean firstTurn = true;
+    private boolean secondTurn = true;
 
     @Override
     public String name() {
@@ -50,10 +50,11 @@ public class AgentA implements Agent {
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
         Game tempGame = game.copy();
-        ;
-        int lastturn = tempGame.lastTurn().getTurnNumber();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
             firstTurn = true;
+        }
+        if (tempGame.lastTurn().getTurnNumber() <= 2) {
+            secondTurn = true;
         }
         boolean isFillPhase = Utility.isFillphase(tempGame);
         Color playerColor = tempGame.getCurrentPlayer();
@@ -73,15 +74,21 @@ public class AgentA implements Agent {
                 }
             }
 
+            List<Placement> connectingPlacements = null;
+
+            if (!firstTurn && secondTurn) {
+                connectingPlacements = Utility.getConnectingWallPlacements(tempGame, playerColor);
+            } else {
+                // get all placements
+                connectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
+            }
+
             // zweiter zug die Wand beruehren lassen?
             // erstmal Steine moeglichst gut klauen
 
             boolean canTakeBuilding = false;
             int bestScore = 0;
             Placement bestPlacement = null;
-
-            // get all placements
-            List<Placement> connectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
 
             // use all placements
             for (Placement connectingPlacement : connectingPlacements) {
@@ -142,7 +149,7 @@ public class AgentA implements Agent {
             return Optional
                     .of(bestPlacement);
 
-        // fillphase
+            // fillphase
         } else {
 
             // makes the recursive function possible

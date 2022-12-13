@@ -82,6 +82,47 @@ public class Utility {
         return connectingPlacements;
     }
 
+    public static List<Placement> getConnectingWallPlacements(Game tempGame, Color playerColor) {
+        List<Position> freeFields = Utility.getFreeFields(tempGame);
+        Color[][] field = tempGame.getBoard().getField();
+        List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
+        List<Placement> possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
+        List<Placement> connectingPlacements = new ArrayList<Placement>();
+
+        for (Placement possiblePlacement : possiblePlacements) {
+
+            int placementScore = 0;
+            boolean touchesWall = false;
+            Direction direction = possiblePlacement.direction();
+            List<Position> corners = possiblePlacement.building().corners(direction);
+
+            for (Position corner : corners) {
+                Position placementPosition = new Position(possiblePlacement.position().x(),
+                        possiblePlacement.position().y());
+                if (placementPosition.isViable()) {
+
+                    Position cornerPosition = placementPosition.plus(corner);
+
+                    if (playerPlaced.contains(cornerPosition)) {
+                        placementScore++;
+                    }
+                    if(cornerPosition.x() > 9 || cornerPosition.x() < 0){
+                        touchesWall = true;
+                    }
+                    if(cornerPosition.y() > 9 || cornerPosition.y() < 0){
+                        touchesWall = true;
+                    }
+                }
+            }
+
+            if (placementScore == 1 && touchesWall) {
+                connectingPlacements.add(possiblePlacement);
+            }
+        }
+
+        return connectingPlacements;
+    }
+
     public static List<Placement> getConnectingPlacements(Game tempGame, Color playerColor) {
         List<Position> freeFields = Utility.getFreeFields(tempGame);
         Color[][] field = tempGame.getBoard().getField();
@@ -226,7 +267,7 @@ public class Utility {
 
         Placement bestPlacement = null;
 
-        int emptyPlacScore = 0;
+        int emptyPlacScore = -1;
         for (Placement goodPlacement : goodPlacements) {
             tempGame.takeTurn(goodPlacement);
             int currPlacScore = Utility.getLastTurnScore(tempGame);
