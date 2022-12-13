@@ -16,6 +16,7 @@ import de.fhkiel.ki.cathedral.game.Direction;
 import de.fhkiel.ki.cathedral.game.Game;
 import de.fhkiel.ki.cathedral.game.Placement;
 import de.fhkiel.ki.cathedral.game.Position;
+import de.fhkiel.ki.cathedral.game.Turn;
 import de.fhkiel.ki.cathedral.gui.CathedralGUI;
 import de.fhkiel.ki.cathedral.gui.Settings;
 
@@ -49,6 +50,11 @@ public class AgentA implements Agent {
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
         Game tempGame = game.copy();
+;
+        int lastturn = tempGame.lastTurn().getTurnNumber();
+        if(tempGame.lastTurn().getTurnNumber() <= 1){
+            firstTurn = true;
+        }
         boolean isFillPhase = Utility.isFillphase(tempGame);
         Color playerColor = tempGame.getCurrentPlayer();
 
@@ -91,23 +97,29 @@ public class AgentA implements Agent {
 
                 int secondScore = 0;
 
+                int bestBuilding = 0;
+                if (bestBuilding < connectingPlacement.building().score()) {
+                    bestBuilding = connectingPlacement.building().score();
+                }
+
                 tempGame.ignoreRules(true);
-                if (!canTakeBuilding) {
-                    List<Placement> secondConnectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
+                if (connectingPlacement.building().score() <= bestBuilding) {
+                    if (!canTakeBuilding) {
+                        List<Placement> secondConnectingPlacements = Utility.getHighConnectingPlacements(tempGame,
+                                playerColor);
 
-                    for (Placement secondConnectingPlacement : secondConnectingPlacements) {
-                        tempGame.takeTurn(secondConnectingPlacement);
-                        int currentSecondScore = Utility.getLastTurnScore(tempGame);
+                        for (Placement secondConnectingPlacement : secondConnectingPlacements) {
+                            tempGame.takeTurn(secondConnectingPlacement);
+                            int currentSecondScore = Utility.getLastTurnScore(tempGame);
 
-                        if (currentSecondScore > secondScore) {
-                            secondScore = currentSecondScore;
+                            if (currentSecondScore > secondScore) {
+                                secondScore = currentSecondScore;
+                            }
+
+                            tempGame.undoLastTurn();
                         }
-                        tempGame.undoLastTurn();
                     }
-
-                    // forloop mit besseren placementscore
-                    // add to currentscore this new score
-
+                    canTakeBuilding = true;
                 }
 
                 if (currentScore + secondScore > bestScore) {
@@ -120,21 +132,12 @@ public class AgentA implements Agent {
 
             if (bestPlacement == null) {
                 // hier nochmal den füllalgo für emptyfields machen
-                tempGame.ignoreRules(true);
-
-                // gets all placements, since it is fast enough (we used getGoodPlacements
-                // before)
                 List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
                         Utility.getFreeFields(tempGame));
 
-                // if there is no placement to be made, return an empty turn
-                if (goodPlacements.size() == 0) {
-                    tempGame.ignoreRules(false);
-                    return Optional.empty();
-                }
+                Placement bestEmptyPlacement = null;
 
                 // entry point for the recursive function
-                Placement bestEmptyPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
                 tempGame.ignoreRules(false);
                 return Optional.of(bestEmptyPlacement);
             } else {

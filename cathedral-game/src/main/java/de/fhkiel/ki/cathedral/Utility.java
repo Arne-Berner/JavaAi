@@ -48,38 +48,72 @@ public class Utility {
         return ownedFieldPositions;
     }
 
-    public static List<Placement> getConnectingPlacements(Game tempGame, Color playerColor){
+    public static List<Placement> getHighConnectingPlacements(Game tempGame, Color playerColor) {
         List<Position> freeFields = Utility.getFreeFields(tempGame);
-            Color[][] field = tempGame.getBoard().getField();
-            List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
-            List<Placement> possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
-            List<Placement> connectingPlacements = new ArrayList<Placement>();
+        Color[][] field = tempGame.getBoard().getField();
+        List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
+        List<Placement> possiblePlacements = Utility.getHighestPossiblePlacement(tempGame, playerColor, freeFields);
+        List<Placement> connectingPlacements = new ArrayList<Placement>();
 
-            for (Placement possiblePlacement : possiblePlacements) {
+        for (Placement possiblePlacement : possiblePlacements) {
 
-                int placementScore = 0;
-                Direction direction = possiblePlacement.direction();
-                List<Position> corners = possiblePlacement.building().corners(direction);
+            int placementScore = 0;
+            Direction direction = possiblePlacement.direction();
+            List<Position> corners = possiblePlacement.building().corners(direction);
 
-                for (Position corner : corners) {
-                    Position placementPosition = new Position(possiblePlacement.position().x(),
-                            possiblePlacement.position().y());
-                    if (placementPosition.isViable()) {
+            for (Position corner : corners) {
+                Position placementPosition = new Position(possiblePlacement.position().x(),
+                        possiblePlacement.position().y());
+                if (placementPosition.isViable()) {
 
-                        Position cornerPosition = placementPosition.plus(corner);
+                    Position cornerPosition = placementPosition.plus(corner);
 
-                        if (playerPlaced.contains(cornerPosition)) {
-                            placementScore++;
-                        }
+                    if (playerPlaced.contains(cornerPosition)) {
+                        placementScore++;
                     }
-                }
-
-                if (placementScore == 1) {
-                    connectingPlacements.add(possiblePlacement);
                 }
             }
 
-            return connectingPlacements;
+            if (placementScore == 1) {
+                connectingPlacements.add(possiblePlacement);
+            }
+        }
+
+        return connectingPlacements;
+    }
+
+    public static List<Placement> getConnectingPlacements(Game tempGame, Color playerColor) {
+        List<Position> freeFields = Utility.getFreeFields(tempGame);
+        Color[][] field = tempGame.getBoard().getField();
+        List<Position> playerPlaced = Utility.placedByPlayer(field, playerColor);
+        List<Placement> possiblePlacements = Utility.getAllPossiblePlacement(tempGame, playerColor, freeFields);
+        List<Placement> connectingPlacements = new ArrayList<Placement>();
+
+        for (Placement possiblePlacement : possiblePlacements) {
+
+            int placementScore = 0;
+            Direction direction = possiblePlacement.direction();
+            List<Position> corners = possiblePlacement.building().corners(direction);
+
+            for (Position corner : corners) {
+                Position placementPosition = new Position(possiblePlacement.position().x(),
+                        possiblePlacement.position().y());
+                if (placementPosition.isViable()) {
+
+                    Position cornerPosition = placementPosition.plus(corner);
+
+                    if (playerPlaced.contains(cornerPosition)) {
+                        placementScore++;
+                    }
+                }
+            }
+
+            if (placementScore == 1) {
+                connectingPlacements.add(possiblePlacement);
+            }
+        }
+
+        return connectingPlacements;
     }
 
     /**
@@ -93,13 +127,13 @@ public class Utility {
         tempGame.takeTurn(goodPlacement);
         int currentScore = tempGame.getPlayerScore(playerColor);
 
-        //check for zero
+        // check for zero
         if (currentScore == 0) {
             tempGame.undoLastTurn();
             return 0;
         }
 
-        //any moves left?
+        // any moves left?
         var goodPlacements = getAllPossiblePlacement(tempGame, playerColor, getOwnedFields(tempGame, playerColor));
 
         if (goodPlacements.size() == 0) {
@@ -107,12 +141,13 @@ public class Utility {
             return currentScore;
         }
 
-        //if there are moves left, call this function recursively for all the placements that are possible now
+        // if there are moves left, call this function recursively for all the
+        // placements that are possible now
         for (Placement placement : goodPlacements) {
 
             currentScore = getPlacementScore(tempGame, placement, score, playerColor);
 
-            //same as bestPlacement
+            // same as bestPlacement
             if (score > currentScore) {
                 score = currentScore;
             }
@@ -183,6 +218,26 @@ public class Utility {
         }
 
         return bestPlacement;
+    }
+
+    public static List<Placement> getHighestPossiblePlacement(Game tempGame, Color playerColor,
+            List<Position> freeFields) {
+        List<Placement> goodPlacements = new ArrayList<Placement>();
+        int buildingScore = 0;
+        for (Building building : tempGame.getPlacableBuildings(playerColor)) {
+            if (building.score() > buildingScore) {
+                buildingScore = building.score();
+                goodPlacements.removeAll(goodPlacements); 
+            }
+
+            if (building.score() >= buildingScore) {
+
+                for (Placement placement : Utility.getPossiblePlacements(freeFields, building, tempGame)) {
+                    goodPlacements.add(placement);
+                }
+            }
+        }
+        return goodPlacements;
     }
 
     public static List<Placement> getAllPossiblePlacement(Game tempGame, Color playerColor, List<Position> freeFields) {
@@ -303,23 +358,21 @@ public class Utility {
         return whiteFieldPositions;
     }
 
-
-    
     /**
      * gets the evaluated Score for the last Turn of current Player
      * higher is better
      * 
      * @return Score as int
      */
-    public static int enemyScoreDiff(Game game){
+    public static int enemyScoreDiff(Game game) {
         Game tempGame = game.copy();
-            Color enemyPlayer = tempGame.getEnemyPlayer();
-            int enemyScore = tempGame.getPlayerScore(enemyPlayer);
-            tempGame.undoLastTurn();
-            int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
-            int enemyScoreDiff = (enemyScore - oldEnemyScore);
+        Color enemyPlayer = tempGame.getEnemyPlayer();
+        int enemyScore = tempGame.getPlayerScore(enemyPlayer);
+        tempGame.undoLastTurn();
+        int oldEnemyScore = tempGame.getPlayerScore(enemyPlayer);
+        int enemyScoreDiff = (enemyScore - oldEnemyScore);
 
-            return enemyScoreDiff;
+        return enemyScoreDiff;
     }
 
     /**
@@ -360,12 +413,7 @@ public class Utility {
             int enemyBuildingScoreDiff = oldEnemyBuildingScore - enemyBuildingScore + (enemyScoreDiff);
 
             turnScore = (int) ownScoreDiff + enemyScoreDiff + enemyTurnDiff + enemyBuildingScoreDiff;
-        if(turnScore > 5){
-            boolean test = true;
-
-        }
-        }
-
+       }
 
         return turnScore;
     }
