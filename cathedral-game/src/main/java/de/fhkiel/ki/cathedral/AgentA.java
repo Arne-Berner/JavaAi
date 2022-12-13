@@ -50,9 +50,9 @@ public class AgentA implements Agent {
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
         Game tempGame = game.copy();
-;
+        ;
         int lastturn = tempGame.lastTurn().getTurnNumber();
-        if(tempGame.lastTurn().getTurnNumber() <= 1){
+        if (tempGame.lastTurn().getTurnNumber() <= 1) {
             firstTurn = true;
         }
         boolean isFillPhase = Utility.isFillphase(tempGame);
@@ -119,7 +119,6 @@ public class AgentA implements Agent {
                             tempGame.undoLastTurn();
                         }
                     }
-                    canTakeBuilding = true;
                 }
 
                 if (currentScore + secondScore > bestScore) {
@@ -128,6 +127,8 @@ public class AgentA implements Agent {
                 }
                 tempGame.undoLastTurn();
             }
+
+            canTakeBuilding = true;
             tempGame.ignoreRules(false);
 
             if (bestPlacement == null) {
