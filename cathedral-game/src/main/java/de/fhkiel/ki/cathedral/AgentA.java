@@ -137,14 +137,13 @@ public class AgentA implements Agent {
 
             if (bestPlacement == null) {
                 bestPlacement = Utility.fillEmptyFields(tempGame, playerColor);
-
-                return Optional.of(bestPlacement);
-            } else {
-                return Optional
-                        .of(bestPlacement);
             }
+
+            return Optional
+                    .of(bestPlacement);
+
+        // fillphase
         } else {
-            // fillphase
 
             // makes the recursive function possible
             tempGame.ignoreRules(true);

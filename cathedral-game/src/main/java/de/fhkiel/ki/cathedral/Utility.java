@@ -224,7 +224,7 @@ public class Utility {
         List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
                 Utility.getFreeFields(tempGame));
 
-        Placement bestPlacement;
+        Placement bestPlacement = null;
 
         int emptyPlacScore = 0;
         for (Placement goodPlacement : goodPlacements) {
