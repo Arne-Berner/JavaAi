@@ -128,6 +128,35 @@ public class Utility {
     }
 
     /**
+     * gets the best possible Placement in the "empty" fillphase
+     */
+    public static Placement getBestEmptyPlacement(
+            Game tempGame, List<Placement> goodPlacements, Color playerColor) {
+
+        // random score that is high
+        int score = 500;
+        Placement bestPlacement = null;
+        for (Placement goodPlacement : goodPlacements) {
+            // actual recursive function
+            int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor);
+
+            // if points are better than the last building (or 500) then set this placement
+            // as bestplacement
+            if (score > currentScore) {
+                bestPlacement = goodPlacement;
+                score = currentScore;
+            }
+
+            // if score is 0, there is nothing more to be done, you win, exit please.
+            if (score == 0) {
+                return bestPlacement;
+            }
+        }
+
+        return bestPlacement;
+    }
+
+    /**
      * gets the best possible Placement in the fillphase
      */
     public static Placement getBestPlacement(

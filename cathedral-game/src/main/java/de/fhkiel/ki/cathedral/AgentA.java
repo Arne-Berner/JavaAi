@@ -116,12 +116,27 @@ public class AgentA implements Agent {
                 }
                 tempGame.undoLastTurn();
             }
-                tempGame.ignoreRules(false);
-
-
+            tempGame.ignoreRules(false);
 
             if (bestPlacement == null) {
-                return Optional.empty();
+                // hier nochmal den füllalgo für emptyfields machen
+                tempGame.ignoreRules(true);
+
+                // gets all placements, since it is fast enough (we used getGoodPlacements
+                // before)
+                List<Placement> goodPlacements = Utility.getAllPossiblePlacement(tempGame, playerColor,
+                        Utility.getFreeFields(tempGame));
+
+                // if there is no placement to be made, return an empty turn
+                if (goodPlacements.size() == 0) {
+                    tempGame.ignoreRules(false);
+                    return Optional.empty();
+                }
+
+                // entry point for the recursive function
+                Placement bestEmptyPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
+                tempGame.ignoreRules(false);
+                return Optional.of(bestEmptyPlacement);
             } else {
                 return Optional
                         .of(bestPlacement);
