@@ -78,6 +78,7 @@ public class AgentA implements Agent {
 
             if (!firstTurn && secondTurn) {
                 connectingPlacements = Utility.getConnectingWallPlacements(tempGame, playerColor);
+                secondTurn = false;
             } else {
                 // get all placements
                 connectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
