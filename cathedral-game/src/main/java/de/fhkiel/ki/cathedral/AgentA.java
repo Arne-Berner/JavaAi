@@ -49,11 +49,13 @@ public class AgentA implements Agent {
 
     @Override
     public Optional<Placement> calculateTurn(Game game, int timeForTurn, int timeBonus) {
+        // TODO kleiner Timer einbauen, sodass er den besten Zug nach spaetestens 60 sek
+        // nimmt oder so
+        // (und das kontingent dann immer weiter runter geht)
+        long start = System.nanoTime();
         Game tempGame = game.copy();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
             firstTurn = true;
-        }
-        if (tempGame.lastTurn().getTurnNumber() <= 2) {
             secondTurn = true;
         }
         boolean isFillPhase = Utility.isFillphase(tempGame);
@@ -69,19 +71,23 @@ public class AgentA implements Agent {
 
                 if (possiblePlacements.size() > 0) {
                     firstTurn = false;
+                    console.println(((System.nanoTime() / 1000000000) - (start / 1000000000))
+                            + " Sekunden hat der Zug gebraucht.");
                     return Optional
                             .of(possiblePlacements.get(0));
                 }
             }
 
-            List<Placement> connectingPlacements = null;
+            List<Placement> placements = null;
 
             if (!firstTurn && secondTurn) {
-                connectingPlacements = Utility.getConnectingWallPlacements(tempGame, playerColor);
+                placements = Utility.getConnectingWallPlacements(tempGame, playerColor);
                 secondTurn = false;
             } else {
                 // get all placements
-                connectingPlacements = Utility.getConnectingPlacements(tempGame, playerColor);
+                // connectingPlacements = Utility.getConnectingPlacements(tempGame,
+                // playerColor);
+                placements = Utility.getAllPossiblePlacement(tempGame, playerColor, Utility.getFreeFields(tempGame));
             }
 
             // zweiter zug die Wand beruehren lassen?
@@ -92,15 +98,18 @@ public class AgentA implements Agent {
             Placement bestPlacement = null;
 
             // use all placements
-            for (Placement connectingPlacement : connectingPlacements) {
-                tempGame.takeTurn(connectingPlacement);
+            for (Placement placement : placements) {
+                tempGame.takeTurn(placement);
 
                 int currentScore = 0;
                 // first building that can steal, resets everything
+                // klaut nicht immer wenn moeglich
                 if (Utility.enemyScoreDiff(tempGame) > 0 && canTakeBuilding == false) {
                     canTakeBuilding = true;
                     bestScore = Utility.getLastTurnScore(tempGame);
-                    bestPlacement = connectingPlacement;
+                    bestPlacement = placement;
+                    // vielleicht if cantakebuilding here als if und das später auswerten (nach dem
+                    // reduzieren)
                 } else {
                     currentScore = Utility.getLastTurnScore(tempGame);
                 }
@@ -109,33 +118,59 @@ public class AgentA implements Agent {
 
                 int secondScore = 0;
 
-                int bestBuilding = 0;
-                if (bestBuilding < connectingPlacement.building().score()) {
-                    bestBuilding = connectingPlacement.building().score();
-                }
+                // wenn kein gebäude geklaut werden kann
+                if (!canTakeBuilding) {
+                    // es werden nur die höchsten Punkte gebäude für den nächsten Schritt genommen
+                    int bestBuilding = 0;
+                    if (bestBuilding < placement.building().score()) {
+                        bestBuilding = placement.building().score();
+                    }
 
-                tempGame.ignoreRules(true);
-                if (connectingPlacement.building().score() <= bestBuilding) {
-                    if (!canTakeBuilding) {
-                        List<Placement> secondConnectingPlacements = Utility.getHighConnectingPlacements(tempGame,
+                    tempGame.ignoreRules(true);
+                    if (placement.building().score() <= bestBuilding) {
+
+                        // only get the connecting placements
+                        List<Position> playerPlaced = Utility.placedByPlayer(tempGame.getBoard().getField(),
                                 playerColor);
+                        int placementScore = 0;
+                        Direction direction = placement.direction();
+                        List<Position> corners = placement.building().corners(direction);
 
-                        for (Placement secondConnectingPlacement : secondConnectingPlacements) {
-                            tempGame.takeTurn(secondConnectingPlacement);
-                            int currentSecondScore = Utility.getLastTurnScore(tempGame);
+                        for (Position corner : corners) {
+                            Position placementPosition = new Position(placement.position().x(),
+                                    placement.position().y());
+                            if (placementPosition.isViable()) {
 
-                            if (currentSecondScore > secondScore) {
-                                secondScore = currentSecondScore;
+                                Position cornerPosition = placementPosition.plus(corner);
+
+                                if (playerPlaced.contains(cornerPosition)) {
+                                    placementScore++;
+                                }
                             }
+                        }
 
-                            tempGame.undoLastTurn();
+                        if (placementScore == 1) {
+                            List<Placement> secondConnectingPlacements = Utility.getHighConnectingPlacements(tempGame,
+                                    playerColor);
+
+                            for (Placement secondConnectingPlacement : secondConnectingPlacements) {
+                                tempGame.takeTurn(secondConnectingPlacement);
+                                int currentSecondScore = Utility.getLastTurnScore(tempGame);
+
+                                if (currentSecondScore > secondScore) {
+                                    secondScore = currentSecondScore;
+                                }
+
+                                tempGame.undoLastTurn();
+                            }
                         }
                     }
                 }
 
+                // der erste Zug soll mehr reinhauen, als der Zweite zug ab turn 5 oder so
                 if (currentScore + secondScore > bestScore) {
                     bestScore = currentScore;
-                    bestPlacement = connectingPlacement;
+                    bestPlacement = placement;
                 }
                 tempGame.undoLastTurn();
             }
@@ -147,6 +182,8 @@ public class AgentA implements Agent {
                 bestPlacement = Utility.fillEmptyFields(tempGame, playerColor);
             }
 
+            console.println(
+                    ((System.nanoTime() / 1000000000) - (start / 1000000000)) + " Sekunden hat der Zug gebraucht.");
             return Optional
                     .of(bestPlacement);
 
@@ -164,12 +201,16 @@ public class AgentA implements Agent {
             // if there is no placement to be made, return an empty turn
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
+                console.println(
+                        ((System.nanoTime() / 1000000000) - (start / 1000000000)) + " Sekunden hat der Zug gebraucht.");
                 return Optional.empty();
             }
 
             // entry point for the recursive function
             Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
             tempGame.ignoreRules(false);
+            console.println(
+                    ((System.nanoTime() / 1000000000) - (start / 1000000000)) + " Sekunden hat der Zug gebraucht.");
             return Optional.of(bestPlacement);
         }
     }
