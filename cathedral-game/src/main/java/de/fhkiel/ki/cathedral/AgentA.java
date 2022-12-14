@@ -31,6 +31,7 @@ public class AgentA implements Agent {
     private PrintStream console;
     private boolean firstTurn = true;
     private boolean secondTurn = true;
+    private long puffer = (long) 120.0;
 
     @Override
     public String name() {
@@ -52,7 +53,7 @@ public class AgentA implements Agent {
         // TODO kleiner Timer einbauen, sodass er den besten Zug nach spaetestens 60 sek
         // nimmt oder so
         // (und das kontingent dann immer weiter runter geht)
-        long start = System.nanoTime();
+        long start = System.nanoTime() / 1000000000;
         Game tempGame = game.copy();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
             firstTurn = true;
@@ -71,8 +72,11 @@ public class AgentA implements Agent {
 
                 if (possiblePlacements.size() > 0) {
                     firstTurn = false;
-                    console.println(((System.nanoTime() / 1000000000) - (start / 1000000000))
-                            + " Sekunden hat der Zug gebraucht.");
+            long end = (System.nanoTime() / 1000000000);
+            long time = start - end;
+            console.println(time + " Sekunden hat der Zug gebraucht.");
+            puffer -= time;
+            console.println(puffer + " Sekunden sind noch übrig.");
                     return Optional
                             .of(possiblePlacements.get(0));
                 }
@@ -182,8 +186,11 @@ public class AgentA implements Agent {
                 bestPlacement = Utility.fillEmptyFields(tempGame, playerColor);
             }
 
-            console.println(
-                    ((System.nanoTime() / 1000000000) - (start / 1000000000)) + " Sekunden hat der Zug gebraucht.");
+            long end = (System.nanoTime() / 1000000000);
+            long time = start - end;
+            console.println(time + " Sekunden hat der Zug gebraucht.");
+            puffer -= time;
+            console.println(puffer + " Sekunden sind noch übrig.");
             return Optional
                     .of(bestPlacement);
 
@@ -201,16 +208,22 @@ public class AgentA implements Agent {
             // if there is no placement to be made, return an empty turn
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
-                console.println(
-                        ((System.nanoTime() / 1000000000) - (start / 1000000000)) + " Sekunden hat der Zug gebraucht.");
+            long end = (System.nanoTime() / 1000000000);
+            long time = start - end;
+            console.println(time + " Sekunden hat der Zug gebraucht.");
+            puffer -= time;
+            console.println(puffer + " Sekunden sind noch übrig.");
                 return Optional.empty();
             }
 
             // entry point for the recursive function
             Placement bestPlacement = Utility.getBestPlacement(tempGame, goodPlacements, playerColor);
             tempGame.ignoreRules(false);
-            console.println(
-                    ((System.nanoTime() / 1000000000) - (start / 1000000000)) + " Sekunden hat der Zug gebraucht.");
+            long end = (System.nanoTime() / 1000000000);
+            long time = start - end;
+            console.println(time + " Sekunden hat der Zug gebraucht.");
+            puffer -= time;
+            console.println(puffer + " Sekunden sind noch übrig.");
             return Optional.of(bestPlacement);
         }
     }
