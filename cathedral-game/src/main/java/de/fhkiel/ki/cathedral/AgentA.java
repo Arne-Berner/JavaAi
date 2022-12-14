@@ -194,7 +194,7 @@ public class AgentA implements Agent {
             return Optional
                     .of(bestPlacement);
 
-            // fillphase
+            // fillphase / test for github
         } else {
 
             // makes the recursive function possible
