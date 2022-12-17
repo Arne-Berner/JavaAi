@@ -22,8 +22,7 @@ public class Serializer {
     }
 
     public void addResult(Learning matchResult) {
-        deserialize();
-        List<Learning> matchResults = new ArrayList<Learning>();
+        List<Learning> matchResults = deserialize();
         matchResults.add(matchResult);
 
         try {
