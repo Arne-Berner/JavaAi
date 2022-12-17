@@ -9,6 +9,8 @@ import java.util.Random;
 
 import javax.swing.JComponent;
 
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionNewtonForm;
+
 import de.fhkiel.ki.cathedral.ai.Agent;
 import de.fhkiel.ki.cathedral.game.Building;
 import de.fhkiel.ki.cathedral.game.Color;
@@ -31,6 +33,7 @@ public class AgentA implements Agent {
     private PrintStream console;
     private boolean firstTurn = true;
     private boolean secondTurn = true;
+    private boolean cathedralPlaced = true;
     private long puffer = (long) 120.0;
 
     @Override
@@ -53,6 +56,8 @@ public class AgentA implements Agent {
         // TODO kleiner Timer einbauen, sodass er den besten Zug nach spaetestens 60 sek
         // nimmt oder so
         // (und das kontingent dann immer weiter runter geht)
+
+        
         long start = System.nanoTime() / 1000000000;
         Game tempGame = game.copy();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
@@ -64,11 +69,24 @@ public class AgentA implements Agent {
 
         // noch keine Füllphase
         if (!isFillPhase) {
+
+            // falls weiss -> erst ein mal die Kathedrale setzen:
+            if (playerColor != Color.Black && cathedralPlaced) {
+                Placement cathedralPlacement = cathedralTurn(tempGame);
+                cathedralPlaced = false;
+                return Optional.of(cathedralPlacement);
+            }
+            
             List<Placement> possiblePlacements = new ArrayList<>();
 
             // erster Zug
             if (firstTurn) {
-                possiblePlacements = firstTurn(tempGame);
+                if (playerColor == Color.Black) {
+                    possiblePlacements = firstTurn(tempGame, 9);
+                }
+                else {
+                    possiblePlacements = firstTurn(tempGame, 20);
+                }
 
                 if (possiblePlacements.size() > 0) {
                     firstTurn = false;
@@ -239,11 +257,16 @@ public class AgentA implements Agent {
 
     }
 
-    private List<Placement> firstTurn(Game tempGame) {
+    private Placement cathedralTurn(Game tempGame) {
+        Placement possibPlacement = new Placement(6, 3, Direction._0, Building.Blue_Cathedral);
+        return possibPlacement;
+    }
+
+    private List<Placement> firstTurn(Game tempGame, int id) {
         // Erster zug!
         List<Placement> possiblePlacements = new ArrayList<Placement>();
         for (Building neuner : tempGame.getPlacableBuildings()) {
-            if (neuner.getId() == 9) {
+            if (neuner.getId() == id) {
                 Position cathedralPosition = tempGame.getBoard().getPlacedBuildings().get(0).position();
                 if (cathedralPosition.x() < 5) {
                     // nur rechte positionen setzen
