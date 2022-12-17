@@ -62,6 +62,8 @@ public class AgentA implements Agent {
         Game tempGame = game.copy();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
             firstTurn = true;
+        }
+        if (tempGame.lastTurn().getTurnNumber() <= 3) {
             secondTurn = true;
         }
         boolean isFillPhase = Utility.isFillphase(tempGame);
