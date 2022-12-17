@@ -40,13 +40,9 @@ public class Serializer {
 
         char[] array = new char[10000];
         try {
-            // Creates a reader using the FileReader
             FileReader input = new FileReader("user.json");
-
-            // Reads characters
             input.read(array);
 
-            // Closes the reader
             input.close();
         } catch (Exception e) {
             e.getStackTrace();
