@@ -61,9 +61,10 @@ public class AgentA implements Agent {
         long start = System.nanoTime() / 1000000000;
         Game tempGame = game.copy();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
+            cathedralPlaced = true;
             firstTurn = true;
         }
-        if (tempGame.lastTurn().getTurnNumber() <= 3) {
+        if (tempGame.lastTurn().getTurnNumber() <= 4) {
             secondTurn = true;
         }
         boolean isFillPhase = Utility.isFillphase(tempGame);
