@@ -264,7 +264,7 @@ public class AgentA implements Agent {
 
     private Placement cathedralTurn(Game tempGame) {
         List<MatchResult> matchResults = Serializer.deserialize();
-        int bestScore = 0;
+        int bestScore = -500;
         int[] bestPosition = new int[2];
         for (MatchResult matchResult : matchResults) {
             if (matchResult.getScoreDifference() > bestScore) {
