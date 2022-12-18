@@ -11,7 +11,6 @@ import de.fhkiel.ki.cathedral.game.Game;
 import de.fhkiel.ki.cathedral.game.Placement;
 
 public class Training {
-    // god i hate this shit
     AgentA player1 = new AgentA();
     AgentA player2 = new AgentA();
 

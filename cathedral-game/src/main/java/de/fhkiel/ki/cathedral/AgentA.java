@@ -2,17 +2,11 @@ package de.fhkiel.ki.cathedral;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-
 import javax.swing.JComponent;
 
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionNewtonForm;
-
 import de.fhkiel.ki.cathedral.ai.Agent;
-import de.fhkiel.ki.cathedral.game.Board;
 import de.fhkiel.ki.cathedral.game.Building;
 import de.fhkiel.ki.cathedral.game.Color;
 import de.fhkiel.ki.cathedral.game.Direction;
