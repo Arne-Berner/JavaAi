@@ -260,13 +260,15 @@ public class AgentA implements Agent {
         List<MatchResult> matchResults = Serializer.deserialize();
         int bestScore = -500;
         int[] bestPosition = new int[2];
+        Direction bestRotation = Direction._0;
         for (MatchResult matchResult : matchResults) {
             if (matchResult.getScoreDifference() > bestScore) {
                 bestPosition = matchResult.getCatPosition();
                 bestScore = matchResult.getScoreDifference();
+                bestRotation = matchResult.getRotation();
             }
         }
-        Placement possibPlacement = new Placement(bestPosition[0], bestPosition[1], Direction._0, Building.Blue_Cathedral);
+        Placement possibPlacement = new Placement(bestPosition[0], bestPosition[1], bestRotation , Building.Blue_Cathedral);
         return possibPlacement;
     }
 

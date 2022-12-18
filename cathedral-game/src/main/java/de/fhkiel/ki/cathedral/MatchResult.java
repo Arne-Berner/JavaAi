@@ -1,12 +1,16 @@
 package de.fhkiel.ki.cathedral;
 
+import de.fhkiel.ki.cathedral.game.Direction;
+
 public class MatchResult {
 
     private int[] catPosition = new int[2];
+    private Direction rotation = Direction._0;
     private int scoreDifference;
 
-    public MatchResult(int[] catPosition, int scoreDifference) {
+    public MatchResult(int[] catPosition, int scoreDifference, Direction rotation) {
         this.catPosition = catPosition;
+        this.rotation = rotation;
         this.scoreDifference = scoreDifference;
     }
 
@@ -24,6 +28,20 @@ public class MatchResult {
         this.catPosition[0] = x;
         this.catPosition[1] = y;
     }
+
+/**
+ * @return the fieldId
+ */
+public Direction getRotation() {
+    return rotation;
+}
+
+/**
+ * @param catPosition the fieldId to set
+ */
+public void setRotation(Direction rotation) {
+    this.rotation = rotation;
+}
 
     /**
      * @param value the value to set

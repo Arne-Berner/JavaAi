@@ -23,7 +23,7 @@ public class Training {
 
         String result = "";
         int[] testfield = {5,5};
-        Serializer.serializeFirstResult(new MatchResult(testfield, -50));
+        Serializer.serializeFirstResult(new MatchResult(testfield, -50, Direction._0));
 
         for (int i = 0; i < numberGames; i++) {
             // fuer alle zuege
@@ -58,7 +58,8 @@ public class Training {
                 }
 
                 int scoreDiff = game.getPlayerScore(Color.Black) - game.getPlayerScore(Color.White);
-                MatchResult matchResult = new MatchResult(catPosition, scoreDiff);
+                Direction rotation = catPlac.direction();
+                MatchResult matchResult = new MatchResult(catPosition, scoreDiff, rotation);
                 Serializer.addResult(matchResult);
                 game = new Game();
 
