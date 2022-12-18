@@ -51,29 +51,6 @@ public class Serializer {
         }
     }
 
-    public static Learning deserializePretty() {
-        // maybe use JsonObjects, with jsonelements
-
-        char[] array = new char[10000];
-        try {
-            FileReader input = new FileReader("/home/arne/Vscode/KI/user.json");
-            input.read(array);
-
-            input.close();
-        } catch (Exception e) {
-            e.getStackTrace();
-        }
-
-        String resultsString = new String(array);
-
-        Gson gson = new GsonBuilder().setLenient().setPrettyPrinting().create();
-        // Type listType = new TypeToken<Learning>() {
-        // }.getType();
-        Learning results = gson.fromJson(resultsString, Learning.class);
-
-        return results;
-    }
-
     public static List<MatchResult> deserialize() {
 
         List<MatchResult> results = new ArrayList<MatchResult>();
