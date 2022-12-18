@@ -23,6 +23,8 @@ public class Training {
         Game game = new Game();
 
         String result = "";
+        int[] testfield = {5,5};
+        Serializer.serializeFirstResult(new MatchResult(testfield, -500));
 
         for (int i = 0; i < numberGames; i++) {
             // fuer alle zuege
@@ -85,7 +87,7 @@ class SimpleTraining {
     public static final void main(String args[]) {
         Training training = new Training();
         String result = training.train(1);
-        System.out.println("Hello.");
+        System.out.println(result);
     }
 
 }
