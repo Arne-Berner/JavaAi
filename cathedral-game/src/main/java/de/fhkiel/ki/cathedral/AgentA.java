@@ -263,7 +263,16 @@ public class AgentA implements Agent {
     }
 
     private Placement cathedralTurn(Game tempGame) {
-        Placement possibPlacement = new Placement(6, 3, Direction._0, Building.Blue_Cathedral);
+        List<MatchResult> matchResults = Serializer.deserialize();
+        int bestScore = 0;
+        int[] bestPosition = new int[2];
+        for (MatchResult matchResult : matchResults) {
+            if (matchResult.getScoreDifference() > bestScore) {
+                bestPosition = matchResult.getCatPosition();
+                bestScore = matchResult.getScoreDifference();
+            }
+        }
+        Placement possibPlacement = new Placement(bestPosition[0], bestPosition[1], Direction._0, Building.Blue_Cathedral);
         return possibPlacement;
     }
 

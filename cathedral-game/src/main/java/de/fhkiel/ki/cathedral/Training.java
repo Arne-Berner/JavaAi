@@ -65,10 +65,10 @@ public class Training {
 
         }
         List<MatchResult> matchResults = Serializer.deserialize();
-        int bestScore = 500;
+        int bestScore = 0;
         int[] bestPosition = new int[2];
         for (MatchResult matchResult : matchResults) {
-            if (matchResult.getScoreDifference() < bestScore) {
+            if (matchResult.getScoreDifference() > bestScore) {
                 bestPosition = matchResult.getCatPosition();
                 bestScore = matchResult.getScoreDifference();
             }
