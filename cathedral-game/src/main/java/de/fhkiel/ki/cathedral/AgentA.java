@@ -85,7 +85,7 @@ public class AgentA implements Agent {
                     possiblePlacements = firstTurn(tempGame, 20);
                 }
 
-                    firstTurn = false;
+                firstTurn = false;
                 if (possiblePlacements.size() > 0) {
                     long end = (System.nanoTime() / 1000000000);
                     long time = start - end;
@@ -101,6 +101,10 @@ public class AgentA implements Agent {
 
             if (!firstTurn && secondTurn) {
                 placements = Utility.getConnectingWallPlacements(tempGame, playerColor);
+                if (placements.size() <= 0) {
+                    placements = Utility.getAllPossiblePlacement(tempGame, playerColor,
+                            Utility.getFreeFields(tempGame));
+                }
                 secondTurn = false;
             } else {
                 // get all placements
@@ -268,7 +272,8 @@ public class AgentA implements Agent {
                 bestRotation = matchResult.getRotation();
             }
         }
-        Placement possibPlacement = new Placement(bestPosition[0], bestPosition[1], bestRotation , Building.Blue_Cathedral);
+        Placement possibPlacement = new Placement(bestPosition[0], bestPosition[1], bestRotation,
+                Building.Blue_Cathedral);
         return possibPlacement;
     }
 
