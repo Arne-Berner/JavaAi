@@ -65,7 +65,9 @@ public class AgentB implements Agent {
         // sollte eigentlich die position des letzten zugs nehmen, funktioniert aber
         // nicht
         lastPosition = possiblePlacements.get(0).position();
-        if (possiblePlacements.isEmpty()) {
+        int test = game.getPlacableBuildings(game.getCurrentPlayer()).size();
+        if (test <= 0) {
+            game.forfeitTurn();
             return Optional.empty();
         } else {
             return Optional

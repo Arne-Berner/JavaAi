@@ -12,13 +12,13 @@ import javax.swing.JComponent;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionNewtonForm;
 
 import de.fhkiel.ki.cathedral.ai.Agent;
+import de.fhkiel.ki.cathedral.game.Board;
 import de.fhkiel.ki.cathedral.game.Building;
 import de.fhkiel.ki.cathedral.game.Color;
 import de.fhkiel.ki.cathedral.game.Direction;
 import de.fhkiel.ki.cathedral.game.Game;
 import de.fhkiel.ki.cathedral.game.Placement;
 import de.fhkiel.ki.cathedral.game.Position;
-import de.fhkiel.ki.cathedral.game.Turn;
 import de.fhkiel.ki.cathedral.gui.CathedralGUI;
 import de.fhkiel.ki.cathedral.gui.Settings;
 
@@ -57,14 +57,15 @@ public class AgentA implements Agent {
         // nimmt oder so
         // (und das kontingent dann immer weiter runter geht)
 
-        
         long start = System.nanoTime() / 1000000000;
         Game tempGame = game.copy();
         if (tempGame.lastTurn().getTurnNumber() <= 1) {
             cathedralPlaced = true;
+        }
+        if (tempGame.lastTurn().getTurnNumber() <= 3) {
             firstTurn = true;
         }
-        if (tempGame.lastTurn().getTurnNumber() <= 4) {
+        if (tempGame.lastTurn().getTurnNumber() <= 5) {
             secondTurn = true;
         }
         boolean isFillPhase = Utility.isFillphase(tempGame);
@@ -79,25 +80,24 @@ public class AgentA implements Agent {
                 cathedralPlaced = false;
                 return Optional.of(cathedralPlacement);
             }
-            
+
             List<Placement> possiblePlacements = new ArrayList<>();
 
             // erster Zug
             if (firstTurn) {
                 if (playerColor == Color.Black) {
                     possiblePlacements = firstTurn(tempGame, 9);
-                }
-                else {
+                } else {
                     possiblePlacements = firstTurn(tempGame, 20);
                 }
 
-                if (possiblePlacements.size() > 0) {
                     firstTurn = false;
-            long end = (System.nanoTime() / 1000000000);
-            long time = start - end;
-            console.println(time + " Sekunden hat der Zug gebraucht.");
-            puffer -= time;
-            console.println(puffer + " Sekunden sind noch übrig.");
+                if (possiblePlacements.size() > 0) {
+                    long end = (System.nanoTime() / 1000000000);
+                    long time = start - end;
+                    console.println(time + " Sekunden hat der Zug gebraucht.");
+                    puffer -= time;
+                    console.println(puffer + " Sekunden sind noch übrig.");
                     return Optional
                             .of(possiblePlacements.get(0));
                 }
@@ -229,11 +229,12 @@ public class AgentA implements Agent {
             // if there is no placement to be made, return an empty turn
             if (goodPlacements.size() == 0) {
                 tempGame.ignoreRules(false);
-            long end = (System.nanoTime() / 1000000000);
-            long time = start - end;
-            console.println(time + " Sekunden hat der Zug gebraucht.");
-            puffer -= time;
-            console.println(puffer + " Sekunden sind noch übrig.");
+                long end = (System.nanoTime() / 1000000000);
+                long time = start - end;
+                console.println(time + " Sekunden hat der Zug gebraucht.");
+                puffer -= time;
+                console.println(puffer + " Sekunden sind noch übrig.");
+
                 return Optional.empty();
             }
 
@@ -245,6 +246,7 @@ public class AgentA implements Agent {
             console.println(time + " Sekunden hat der Zug gebraucht.");
             puffer -= time;
             console.println(puffer + " Sekunden sind noch übrig.");
+
             return Optional.of(bestPlacement);
         }
     }
