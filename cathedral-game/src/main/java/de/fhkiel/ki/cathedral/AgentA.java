@@ -95,9 +95,9 @@ public class AgentA implements Agent {
                 if (possiblePlacements.size() > 0) {
                     long end = (System.nanoTime() / 1000000000);
                     long time = start - end;
-                    console.println(time + " Sekunden hat der Zug gebraucht.");
+                    // console.println(time + " Sekunden hat der Zug gebraucht.");
                     puffer -= time;
-                    console.println(puffer + " Sekunden sind noch übrig.");
+                    // console.println(puffer + " Sekunden sind noch übrig.");
                     return Optional
                             .of(possiblePlacements.get(0));
                 }
@@ -209,9 +209,9 @@ public class AgentA implements Agent {
 
             long end = (System.nanoTime() / 1000000000);
             long time = start - end;
-            console.println(time + " Sekunden hat der Zug gebraucht.");
+            // console.println(time + " Sekunden hat der Zug gebraucht.");
             puffer -= time;
-            console.println(puffer + " Sekunden sind noch übrig.");
+            // console.println(puffer + " Sekunden sind noch übrig.");
             return Optional
                     .of(bestPlacement);
 
@@ -231,9 +231,9 @@ public class AgentA implements Agent {
                 tempGame.ignoreRules(false);
                 long end = (System.nanoTime() / 1000000000);
                 long time = start - end;
-                console.println(time + " Sekunden hat der Zug gebraucht.");
+                // console.println(time + " Sekunden hat der Zug gebraucht.");
                 puffer -= time;
-                console.println(puffer + " Sekunden sind noch übrig.");
+                // console.println(puffer + " Sekunden sind noch übrig.");
 
                 return Optional.empty();
             }
@@ -243,9 +243,9 @@ public class AgentA implements Agent {
             tempGame.ignoreRules(false);
             long end = (System.nanoTime() / 1000000000);
             long time = start - end;
-            console.println(time + " Sekunden hat der Zug gebraucht.");
+            // console.println(time + " Sekunden hat der Zug gebraucht.");
             puffer -= time;
-            console.println(puffer + " Sekunden sind noch übrig.");
+            // console.println(puffer + " Sekunden sind noch übrig.");
 
             return Optional.of(bestPlacement);
         }

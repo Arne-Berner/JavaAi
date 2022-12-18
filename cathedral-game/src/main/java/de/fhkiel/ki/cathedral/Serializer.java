@@ -1,5 +1,6 @@
 package de.fhkiel.ki.cathedral;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -9,7 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Serializer {
 
@@ -63,6 +66,7 @@ public class Serializer {
             // Gson gson = new GsonBuilder().setLenient().create();
         } catch (Exception e) {
             e.getStackTrace();
+            return results;
         }
 
         return results;
