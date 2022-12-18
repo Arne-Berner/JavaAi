@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import com.google.gson.reflect.TypeToken;
-
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -20,11 +20,11 @@ public class Serializer {
         try {
             FileWriter writer = new FileWriter("user.json");
 
-            Type listType = new TypeToken<Learning>() {
+            Type listType = new TypeToken<List<MatchResult>>() {
             }.getType();
 
-            Learning matchResults = new Learning();
-            matchResults.addResult(matchResult);
+            List<MatchResult> matchResults = new ArrayList<MatchResult>();
+            matchResults.add(matchResult);
             Gson gson = new Gson();
             gson.toJson(matchResults, listType, writer);
 
@@ -36,12 +36,14 @@ public class Serializer {
     }
 
     public static void addResult(MatchResult matchResult) {
-        Learning matchResults = deserialize();
-        matchResults.addResult(matchResult);
+        List<MatchResult> matchResults = deserialize();
+        matchResults.add(matchResult);
 
         try {
             FileWriter writer = new FileWriter("user.json");
-            new Gson().toJson(matchResults, writer);
+            Type listType = new TypeToken<List<MatchResult>>() {
+            }.getType();
+            new Gson().toJson(matchResults, listType, writer);
 
             writer.close();
         } catch (Exception ex) {
@@ -72,15 +74,17 @@ public class Serializer {
         return results;
     }
 
-    public static Learning deserialize() {
+    public static List<MatchResult> deserialize() {
 
-        Learning results = new Learning();
+        List<MatchResult> results = new ArrayList<MatchResult>();
 
         try {
             Reader reader = Files.newBufferedReader(Paths.get("user.json"));
 
             Gson gson = new Gson();
-            results = gson.fromJson(reader, Learning.class);
+            Type listType = new TypeToken<List<MatchResult>>() {
+            }.getType();
+            results = gson.fromJson(reader, listType);
 
             // Gson gson = new GsonBuilder().setLenient().create();
         } catch (Exception e) {

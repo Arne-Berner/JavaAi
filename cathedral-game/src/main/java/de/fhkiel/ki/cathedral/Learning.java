@@ -113,11 +113,9 @@ class JSON {
             stats.addResult(stat2);
 
             Serializer.serializeFirstResult(stat1);
-            Serializer.addResult(stat2);
-            System.out.println("It begins here! \n");
-            Learning test = Serializer.deserialize();
-            List<MatchResult> test2 = test.getMatchResults();
-            System.out.println(test2.size());
+            System.out.println("It begins here!");
+            List<MatchResult> test = Serializer.deserialize();
+            System.out.println(test.size());
 
         } catch (Exception ex) {
             ex.printStackTrace();
