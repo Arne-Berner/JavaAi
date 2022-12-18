@@ -5,12 +5,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
 import java.util.*;
-import org.json.simple.*;
-import org.json.simple.parser.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Learning {
+    private List<MatchResult> matchResults = new ArrayList<>();
+
+    public void addResult(MatchResult matchResult){
+        matchResults.add(matchResult);
+    }
+
+    public List<MatchResult> getMatchResults(){
+        return matchResults;
+    }
+
+    public void setMatchResults(List<MatchResult> matchResults){
+        this.matchResults = matchResults;
+    }
+}
+
+class MatchResult {
+    
     private int[] fieldId = new int[2];
     private int numberOfWins;
     private int numberOfGames;
@@ -80,33 +95,29 @@ class JSON {
 
     public static final void main(String args[]) {
         try {
-            List<Learning> stats = new ArrayList<Learning>();
+            Learning stats = new Learning();
             // Fill data, you know, whatever
-            Learning stat1 = new Learning();
+            MatchResult stat1 = new MatchResult();
             stat1.setFieldId(1, 5);
             stat1.setNumberOfWins(2);
             stat1.setNumberOfGames(200);
             stat1.setScoreDifference(20, 10);
 
-            Learning stat2 = new Learning();
+            MatchResult stat2 = new MatchResult();
             stat2.setFieldId(1, 5);
             stat2.setNumberOfWins(2);
             stat2.setNumberOfGames(200);
             stat2.setScoreDifference(10, 20);
 
-            stats.add(stat1);
-            stats.add(stat2);
+            stats.addResult(stat1);
+            stats.addResult(stat2);
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            System.out.println(gson.toJson(stats));
-            // create a writer
-            FileWriter writer = new FileWriter("user.json");
-
-            // convert map to JSON File
-            new Gson().toJson(stats, writer);
-
-            // close the writer
-            writer.close();
+            Serializer.serializeFirstResult(stat1);
+            Serializer.addResult(stat2);
+            System.out.println("It begins here! \n");
+            Learning test = Serializer.deserialize();
+            List<MatchResult> test2 = test.getMatchResults();
+            System.out.println(test2.size());
 
         } catch (Exception ex) {
             ex.printStackTrace();
