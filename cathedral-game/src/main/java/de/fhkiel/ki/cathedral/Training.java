@@ -24,7 +24,7 @@ public class Training {
 
         String result = "";
         int[] testfield = {5,5};
-        Serializer.serializeFirstResult(new MatchResult(testfield, -500));
+        Serializer.serializeFirstResult(new MatchResult(testfield, -50));
 
         for (int i = 0; i < numberGames; i++) {
             // fuer alle zuege
