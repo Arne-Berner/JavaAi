@@ -162,11 +162,16 @@ public class Utility {
      * following placements
      */
     public static int getPlacementScore(
-            Game tempGame, Placement goodPlacement, int score, Color playerColor) {
+            Game tempGame, Placement goodPlacement, int score, Color playerColor, long timestamp) {
 
         // takes the first turn, to check if we reached zero or have moves left
         tempGame.takeTurn(goodPlacement);
         int currentScore = tempGame.getPlayerScore(playerColor);
+            long end = (System.nanoTime() / 1000000000);
+            long time = timestamp - end;
+            if(time > 45){
+                return currentScore;
+            }
 
         // check for zero
         if (currentScore == 0) {
@@ -186,7 +191,7 @@ public class Utility {
         // placements that are possible now
         for (Placement placement : goodPlacements) {
 
-            currentScore = getPlacementScore(tempGame, placement, score, playerColor);
+            currentScore = getPlacementScore(tempGame, placement, score, playerColor,timestamp);
 
             // same as bestPlacement
             if (score > currentScore) {
@@ -212,9 +217,10 @@ public class Utility {
         // random score that is high
         int score = 500;
         Placement bestPlacement = null;
+            long timestamp = (System.nanoTime() / 1000000000);
         for (Placement goodPlacement : goodPlacements) {
             // actual recursive function
-            int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor);
+            int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor,timestamp);
 
             // if points are better than the last building (or 500) then set this placement
             // as bestplacement
@@ -241,9 +247,10 @@ public class Utility {
         // random score that is high
         int score = 500;
         Placement bestPlacement = null;
+            long timestamp = (System.nanoTime() / 1000000000);
         for (Placement goodPlacement : goodPlacements) {
             // actual recursive function
-            int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor);
+            int currentScore = getPlacementScore(tempGame, goodPlacement, score, playerColor,timestamp);
 
             // if points are better than the last building (or 500) then set this placement
             // as bestplacement

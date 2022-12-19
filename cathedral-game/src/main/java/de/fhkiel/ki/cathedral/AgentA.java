@@ -192,7 +192,7 @@ public class AgentA implements Agent {
 
                 // der erste Zug soll mehr reinhauen, als der Zweite zug ab turn 5 oder so
                 if (currentScore + 0.95 * secondScore > bestScore) {
-                    bestScore = currentScore;
+                    bestScore = (int)(currentScore + 0.95 * secondScore);
                     bestPlacement = placement;
                 }
                 tempGame.undoLastTurn();

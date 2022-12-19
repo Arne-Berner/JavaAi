@@ -14,10 +14,6 @@ public class Training {
     AgentA player1 = new AgentA();
     AgentA player2 = new AgentA();
 
-    // public static final void main(String args[]) {
-    // train(1);
-    // }
-
     public String train(int numberGames) {
         Game game = new Game();
 
