@@ -168,8 +168,8 @@ public class Utility {
         tempGame.takeTurn(goodPlacement);
         int currentScore = tempGame.getPlayerScore(playerColor);
             long end = (System.nanoTime() / 1000000000);
-            long time = timestamp - end;
-            if(time > 45){
+            long time = end - timestamp;
+            if(time > 30){
                 return currentScore;
             }
 
